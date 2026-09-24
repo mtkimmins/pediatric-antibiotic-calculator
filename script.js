@@ -1,7 +1,10 @@
 const antibioticCatalog = {
   amoxicillin: {
     name: 'Amoxicillin',
-    indications: [],
+    indications: [
+      { name: 'Dummy acute otitis media', dose: 45, doseUnit: 'mg', strength: 400, frequency: 2, frequencyUnit: 'times/day', duration: 7 },
+      { name: 'Dummy streptococcal pharyngitis', dose: 50, doseUnit: 'mg', strength: 250, frequency: 1, frequencyUnit: 'times/day', duration: 10 }
+    ],
     dailyDoseMgPerKg: 40,
     frequency: 2,
     route: 'PO',
@@ -12,11 +15,14 @@ const antibioticCatalog = {
       { label: '500 mg capsule', concentration: 500, unit: 'mg/capsule' },
       { label: '875 mg tablet', concentration: 875, unit: 'mg/tablet' }
     ],
-    notes: 'Commonly used for mild-to-moderate respiratory and ENT infections.'
+    notes: 'Dummy indications and doses are placeholders for later clinical configuration.'
   },
   clavulanate: {
     name: 'Amoxicillin + Clavulanic acid',
-    indications: [],
+    indications: [
+      { name: 'Dummy bacterial sinusitis', dose: 45, doseUnit: 'mg', strength: 400, frequency: 2, frequencyUnit: 'times/day', duration: 10 },
+      { name: 'Dummy bite wound prophylaxis', dose: 25, doseUnit: 'mg', strength: 250, frequency: 2, frequencyUnit: 'times/day', duration: 5 }
+    ],
     dailyDoseMgPerKg: 45,
     frequency: 2,
     route: 'PO',
@@ -27,11 +33,14 @@ const antibioticCatalog = {
       { label: '400/57 mg/5 mL', concentration: 80, unit: 'mg/mL' },
       { label: '875/125 mg tablet', concentration: 875, unit: 'mg/tablet' }
     ],
-    notes: 'Ensure the clavulanate component is appropriate for the indication and dose is adjusted for age.'
+    notes: 'Dummy indications and doses are placeholders for later clinical configuration.'
   },
   azithromycin: {
     name: 'Azithromycin',
-    indications: [],
+    indications: [
+      { name: 'Dummy atypical pneumonia', dose: 10, doseUnit: 'mg', strength: 200, frequency: 1, frequencyUnit: 'times/day', duration: 5 },
+      { name: 'Dummy pertussis exposure', dose: 10, doseUnit: 'mg', strength: 200, frequency: 1, frequencyUnit: 'times/day', duration: 5 }
+    ],
     dailyDoseMgPerKg: 10,
     frequency: 1,
     route: 'PO',
@@ -41,15 +50,11 @@ const antibioticCatalog = {
       { label: '250 mg tablet', concentration: 250, unit: 'mg/tablet' },
       { label: '600 mg tablet', concentration: 600, unit: 'mg/tablet' }
     ],
-    notes: 'Often used for community-acquired pneumonia and selected respiratory pathogens.'
+    notes: 'Dummy indications and doses are placeholders for later clinical configuration.'
   }
 };
 
-const state = {
-  selected: [],
-  weightUnit: 'kg'
-};
-
+const state = { selected: [], weightUnit: 'kg' };
 const weightInput = document.getElementById('weightKg');
 const weightUnit = document.getElementById('weightUnit');
 const weightToggle = document.getElementById('weightToggle');
@@ -92,46 +97,133 @@ function recommendedFormulation(antibiotic, weightKg) {
   const bestMatch = antibiotic.formulation
     .map((option) => {
       const volumeOrCount = option.concentration > 0 ? dosePerAdministration / option.concentration : 0;
-      return {
-        option,
-        volumeOrCount,
-        difference: Math.abs(volumeOrCount - Math.round(volumeOrCount || 0))
-      };
+      return { option, volumeOrCount, difference: Math.abs(volumeOrCount - Math.round(volumeOrCount || 0)) };
     })
     .sort((a, b) => a.difference - b.difference)[0];
-
   return bestMatch || antibiotic.formulation[0];
 }
 
-function buildIndicationSelect(antibiotic, selectedIndication) {
+function getIndication(antibiotic, name) {
+  return antibiotic.indications.find((indication) => indication.name === name) || antibiotic.indications[0];
+}
+
+function calculateTotalQuantity(item) {
+  const dose = Number(item.dose) || 0;
+  const doseInMg = item.doseUnit === 'ml' ? dose * (Number(item.strength) || 0) : dose;
+  const frequency = Number(item.frequency) || 0;
+  const dosesPerDay = item.frequencyUnit === 'hours' ? (frequency > 0 ? 24 / frequency : 0) : frequency;
+  return doseInMg * dosesPerDay * (Number(item.duration) || 0);
+}
+
+function createNumberInput(labelText, value, step, onInput) {
+  const label = document.createElement('label');
+  label.innerHTML = `<span>${labelText}</span>`;
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.min = '0';
+  input.step = step;
+  input.value = value;
+  input.addEventListener('input', () => onInput(input.value));
+  label.appendChild(input);
+  return { label, input };
+}
+
+function buildDosePanel(selectedItem) {
+  const panel = document.createElement('div');
+  panel.className = 'dose-panel';
+  const heading = document.createElement('h3');
+  heading.textContent = 'Dose details';
+  panel.appendChild(heading);
+
+  const doseRow = document.createElement('div');
+  doseRow.className = 'dose-input-row';
+  const dose = createNumberInput('Dose', selectedItem.dose, '0.1', (value) => {
+    selectedItem.dose = value;
+    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  });
+  doseRow.appendChild(dose.label);
+
+  const doseUnit = document.createElement('label');
+  doseUnit.innerHTML = '<span>Unit</span>';
+  const doseUnitSelect = document.createElement('select');
+  doseUnitSelect.innerHTML = '<option value="mg">mg</option><option value="ml">mL</option>';
+  doseUnitSelect.value = selectedItem.doseUnit;
+  doseUnitSelect.addEventListener('change', () => {
+    selectedItem.doseUnit = doseUnitSelect.value;
+    strength.label.style.display = selectedItem.doseUnit === 'ml' ? '' : 'none';
+    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  });
+  doseUnit.appendChild(doseUnitSelect);
+  doseRow.appendChild(doseUnit);
+  panel.appendChild(doseRow);
+
+  const strength = createNumberInput('Strength (mg/mL)', selectedItem.strength, '0.1', (value) => {
+    selectedItem.strength = value;
+    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  });
+  strength.label.style.display = selectedItem.doseUnit === 'ml' ? '' : 'none';
+  panel.appendChild(strength.label);
+
+  const frequencyRow = document.createElement('div');
+  frequencyRow.className = 'dose-input-row';
+  const frequency = createNumberInput('Frequency', selectedItem.frequency, '0.1', (value) => {
+    selectedItem.frequency = value;
+    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  });
+  frequencyRow.appendChild(frequency.label);
+  const frequencyUnit = document.createElement('label');
+  frequencyUnit.innerHTML = '<span>Frequency unit</span>';
+  const frequencyUnitSelect = document.createElement('select');
+  frequencyUnitSelect.innerHTML = '<option value="hours">hours</option><option value="times/day">times per day</option>';
+  frequencyUnitSelect.value = selectedItem.frequencyUnit;
+  frequencyUnitSelect.addEventListener('change', () => {
+    selectedItem.frequencyUnit = frequencyUnitSelect.value;
+    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  });
+  frequencyUnit.appendChild(frequencyUnitSelect);
+  frequencyRow.appendChild(frequencyUnit);
+  panel.appendChild(frequencyRow);
+
+  const duration = createNumberInput('Duration (days)', selectedItem.duration, '1', (value) => {
+    selectedItem.duration = value;
+    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  });
+  panel.appendChild(duration.label);
+
+  const totalBox = document.createElement('div');
+  totalBox.className = 'total-quantity';
+  totalBox.innerHTML = '<span>Total quantity</span><strong></strong>';
+  const total = totalBox.querySelector('strong');
+  total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  panel.appendChild(totalBox);
+  return panel;
+}
+
+function buildIndicationSelect(antibiotic, selectedItem) {
   const label = document.createElement('label');
   label.className = 'indication-field';
   label.innerHTML = '<span>Indication</span>';
-
   const select = document.createElement('select');
   select.className = 'indication-select';
-  select.setAttribute('aria-label', `Indication for ${antibiotic.name}`);
-
-  const defaultOption = document.createElement('option');
-  defaultOption.value = '';
-  defaultOption.textContent = antibiotic.indications.length ? 'Select an indication' : 'No indications configured';
-  defaultOption.disabled = antibiotic.indications.length === 0;
-  defaultOption.selected = !selectedIndication;
-  select.appendChild(defaultOption);
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Select an indication';
+  placeholder.disabled = true;
+  select.appendChild(placeholder);
 
   antibiotic.indications.forEach((indication) => {
     const option = document.createElement('option');
-    option.value = indication;
-    option.textContent = indication;
-    option.selected = indication === selectedIndication;
+    option.value = indication.name;
+    option.textContent = `${indication.name} — ${indication.dose} mg, ${indication.frequency} ${indication.frequencyUnit}`;
     select.appendChild(option);
   });
-
+  select.value = selectedItem.indication;
   select.addEventListener('change', () => {
-    const item = state.selected.find(({ key }) => key === antibiotic.key);
-    if (item) item.indication = select.value;
+    selectedItem.indication = select.value;
+    const indication = getIndication(antibiotic, select.value);
+    if (indication) Object.assign(selectedItem, indication, { indication: indication.name });
+    renderPrescriptions();
   });
-
   label.appendChild(select);
   return label;
 }
@@ -140,16 +232,19 @@ function buildCard(selectedItem, antibiotic, weightKg) {
   const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
   const perDose = perDoseAmount(antibiotic, weightKg);
   const recommended = recommendedFormulation(antibiotic, weightKg);
-
   const card = document.createElement('article');
   card.className = 'prescription-card';
+
+  const dosePanel = buildDosePanel(selectedItem);
+  const content = document.createElement('div');
+  content.className = 'prescription-content';
 
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
   removeBtn.className = 'remove-button';
   removeBtn.textContent = 'Remove';
   removeBtn.addEventListener('click', () => {
-    state.selected = state.selected.filter((item) => item.key !== selectedItem.key);
+    state.selected = state.selected.filter((item) => item !== selectedItem);
     renderPrescriptions();
   });
 
@@ -157,83 +252,48 @@ function buildCard(selectedItem, antibiotic, weightKg) {
   title.className = 'card-header';
   title.innerHTML = `<h3>${antibiotic.name}</h3>`;
   title.appendChild(removeBtn);
-
   const meta = document.createElement('div');
   meta.className = 'card-meta';
-  meta.innerHTML = `
-    <span>${antibiotic.route}</span>
-    <span>${antibiotic.interval}</span>
-    <span>${antibiotic.frequency}-times daily</span>
-  `;
-
-  const indication = buildIndicationSelect(antibiotic, selectedItem.indication);
-
+  meta.innerHTML = `<span>${antibiotic.route}</span><span>${antibiotic.interval}</span><span>${antibiotic.frequency}-times daily</span>`;
+  const indication = buildIndicationSelect(antibiotic, selectedItem);
   const dosingInfo = document.createElement('div');
   dosingInfo.className = 'dose-info';
-  dosingInfo.innerHTML = `
-    <p><strong>Total daily dose:</strong> ${formatNumber(totalDaily)} mg/day</p>
-    <p><strong>Per dose:</strong> ${formatNumber(perDose)} mg</p>
-    <p><strong>Suggested formulation:</strong> ${recommended.option.label}</p>
-    <p><strong>Practical approximation:</strong> ${formatNumber(recommended.volumeOrCount)} unit(s) of ${recommended.option.label}</p>
-  `;
-
+  dosingInfo.innerHTML = `<p><strong>Reference total daily dose:</strong> ${formatNumber(totalDaily)} mg/day</p><p><strong>Reference per dose:</strong> ${formatNumber(perDose)} mg</p><p><strong>Suggested formulation:</strong> ${recommended.option.label}</p><p><strong>Practical approximation:</strong> ${formatNumber(recommended.volumeOrCount)} unit(s) of ${recommended.option.label}</p>`;
   const note = document.createElement('p');
   note.className = 'card-note';
   note.textContent = antibiotic.notes;
-
-  card.append(title, meta, indication, dosingInfo, note);
+  content.append(title, meta, indication, dosingInfo, note);
+  card.append(dosePanel, content);
   return card;
 }
 
 function renderPrescriptions() {
-  const weightKg = getWeightKg();
   prescriptionList.innerHTML = '';
-
   if (state.selected.length === 0) {
     prescriptionList.innerHTML = '<div class="empty-state">No antibiotics added yet. Select a medication to build the prescription.</div>';
     return;
   }
-
   state.selected.forEach((selectedItem) => {
     const antibiotic = antibioticCatalog[selectedItem.key];
-    if (!antibiotic) return;
-    prescriptionList.appendChild(buildCard(selectedItem, antibiotic, weightKg));
+    if (antibiotic) prescriptionList.appendChild(buildCard(selectedItem, antibiotic, getWeightKg()));
   });
 }
 
 function addSelectedAntibiotic() {
   const key = selectEl.value;
-  if (!key || state.selected.some((item) => item.key === key)) {
-    return;
-  }
-
-  state.selected.push({ key, indication: '' });
+  if (!key || state.selected.some((item) => item.key === key)) return;
+  const antibiotic = antibioticCatalog[key];
+  const indication = antibiotic.indications[0];
+  state.selected.push({ key, indication: indication.name, ...indication });
   renderPrescriptions();
 }
 
 function exportPrescriptionSummary() {
-  const weightKg = getWeightKg();
-  const ageYears = Number(ageInput.value) || 0;
-  const notes = notesEl.value.trim();
-
-  const lines = [
-    'Pediatric Antibiotic Calculator',
-    '==============================',
-    `Weight: ${formatNumber(weightKg)} kg`,
-    `Age: ${formatNumber(ageYears)} years`,
-    notes ? `Notes: ${notes}` : null,
-    '',
-    'Selected antibiotics:'
-  ];
-
-  state.selected.forEach(({ key, indication }) => {
-    const antibiotic = antibioticCatalog[key];
-    const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
-    const perDose = perDoseAmount(antibiotic, weightKg);
-    const indicationText = indication ? ` (${indication})` : '';
-    lines.push(`- ${antibiotic.name}${indicationText}: ${formatNumber(totalDaily)} mg/day total; ${formatNumber(perDose)} mg per dose`);
+  const lines = ['Pediatric Antibiotic Calculator', '==============================', `Weight: ${formatNumber(getWeightKg())} kg`, `Age: ${formatNumber(Number(ageInput.value) || 0)} years`, notesEl.value.trim() ? `Notes: ${notesEl.value.trim()}` : null, '', 'Selected antibiotics:'];
+  state.selected.forEach((item) => {
+    const antibiotic = antibioticCatalog[item.key];
+    lines.push(`- ${antibiotic.name} (${item.indication}): ${formatNumber(calculateTotalQuantity(item))} mg total`);
   });
-
   const blob = new Blob([lines.filter(Boolean).join('\n') + '\n'], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -245,12 +305,7 @@ function exportPrescriptionSummary() {
 
 function toggleWeightUnit() {
   const currentWeight = Number(weightInput.value);
-  if (Number.isFinite(currentWeight) && currentWeight > 0) {
-    weightInput.value = state.weightUnit === 'kg'
-      ? formatNumber(currentWeight * 2.20462)
-      : formatNumber(currentWeight / 2.20462);
-  }
-
+  if (Number.isFinite(currentWeight) && currentWeight > 0) weightInput.value = formatNumber(state.weightUnit === 'kg' ? currentWeight * 2.20462 : currentWeight / 2.20462);
   state.weightUnit = state.weightUnit === 'kg' ? 'lbs' : 'kg';
   weightUnit.textContent = state.weightUnit;
   weightToggle.textContent = state.weightUnit === 'kg' ? 'Switch to lbs' : 'Switch to kg';
@@ -259,13 +314,8 @@ function toggleWeightUnit() {
 }
 
 weightInput.addEventListener('input', renderPrescriptions);
-ageInput.addEventListener('input', renderPrescriptions);
 weightToggle.addEventListener('click', toggleWeightUnit);
 addBtn.addEventListener('click', addSelectedAntibiotic);
-printBtn.addEventListener('click', () => {
-  exportPrescriptionSummary();
-  window.print();
-});
-
+printBtn.addEventListener('click', () => { exportPrescriptionSummary(); window.print(); });
 populateAntibioticOptions();
 renderPrescriptions();
