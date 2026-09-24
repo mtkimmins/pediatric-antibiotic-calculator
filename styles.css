@@ -43,8 +43,15 @@ textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); bor
 .section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .section-heading h2 { margin-bottom: 0; }
 .prescription-list { display: grid; gap: 16px; }
-.prescription-card { display: grid; grid-template-columns: minmax(230px, 280px) minmax(0, 1fr); gap: 20px; align-items: start; background: linear-gradient(180deg, #fbfdff 0%, #f2f8ff 100%); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
-.dose-panel { aspect-ratio: 1 / 1; display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #eef1f4; }
+.prescription-card { display: block; background: linear-gradient(180deg, #fbfdff 0%, #f2f8ff 100%); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+.card-top { display: block; }
+.card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.card-header h3 { margin-bottom: 0; }
+.card-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.card-meta span { background: var(--accent); padding: 5px 10px; border-radius: 999px; font-size: .8rem; color: var(--primary-strong); font-weight: 700; }
+.indication-field { width: 100%; max-width: none; margin-bottom: 16px; }
+.dose-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.dose-panel { min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #eef1f4; }
 .dose-panel h3 { margin-bottom: 0; font-size: 1rem; }
 .dose-panel label { gap: 5px; font-size: .85rem; }
 .dose-panel input, .dose-panel select { padding: 9px 10px; }
@@ -53,16 +60,11 @@ textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); bor
 .total-quantity span { color: var(--muted); font-size: .85rem; }
 .total-quantity strong { color: var(--primary-strong); }
 .prescription-content { min-width: 0; }
-.card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-.card-header h3 { margin-bottom: 0; }
-.card-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.card-meta span { background: var(--accent); padding: 5px 10px; border-radius: 999px; font-size: .8rem; color: var(--primary-strong); font-weight: 700; }
-.indication-field { max-width: 520px; margin-bottom: 16px; }
-.dose-info { background: rgba(209, 232, 255, .35); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.dose-info { background: rgba(209, 232, 255, .35); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 16px 0 10px; }
 .dose-info p { margin: 0 0 8px; }
 .dose-info p:last-child { margin-bottom: 0; }
 .card-note { color: var(--muted); margin-bottom: 0; }
 .remove-button { background: var(--danger); color: #8b1f1f; font-weight: 700; }
 .empty-state { background: #f8fafc; border: 1px dashed var(--border); border-radius: 12px; padding: 18px; color: var(--muted); }
-@media (max-width: 860px) { .field-row, .selector-row { grid-template-columns: 1fr; } .topbar { grid-template-columns: 1fr; } .secondary-button { justify-self: start; } .prescription-card { grid-template-columns: 1fr; } .dose-panel { aspect-ratio: auto; } }
+@media (max-width: 860px) { .field-row, .selector-row { grid-template-columns: 1fr; } .topbar { grid-template-columns: 1fr; } .secondary-button { justify-self: start; } .dose-panels { grid-template-columns: 1fr; } }
 @media print { body { background: white; } .secondary-button, .primary-button, .remove-button, .unit-toggle { display: none !important; } .app-shell { max-width: none; padding: 0; } .panel, .topbar { box-shadow: none; border: 1px solid #d8d8d8; } }
