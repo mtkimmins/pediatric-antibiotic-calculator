@@ -10,12 +10,12 @@ B[Clinical]-->BA
 C[Patient Material]-->CA
 
 %% STYLES
-classDef done fill:#5D0E41
-classDef prog fill:#A0153E
+classDef done fill:#00224D
+classDef prog fill:#5D0E41
 classDef lock fill:#FF204E
 
 %% CLASSES
 class AZ done;
 class A,B,C prog;
-class AZ lock;
+class AA,BA,CA lock;
 ```
