@@ -8,7 +8,6 @@
   --text: #1f2a37;
   --muted: #5a6b7d;
   --border: #d8e2ee;
-  --success: #eaf9ef;
   --danger: #fcecec;
   --shadow: 0 16px 32px rgba(15, 41, 68, 0.08);
 }
@@ -84,15 +83,13 @@ h1 {
   box-shadow: var(--shadow);
 }
 
-.patient-panel,
+.patient-panel {
+  grid-column: 1 / -1;
+}
+
 .selector-panel,
 .prescription-panel {
   grid-column: 1;
-}
-
-.summary-panel {
-  grid-column: 2;
-  grid-row: 1 / span 3;
 }
 
 .field-row {
@@ -118,6 +115,7 @@ label span {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: #fbfcff;
+  overflow: hidden;
 }
 
 .input-with-unit input,
@@ -137,10 +135,28 @@ textarea {
   background: transparent;
 }
 
-.input-with-unit span {
+.input-with-unit > span {
   padding-right: 12px;
   color: var(--muted);
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.unit-toggle {
+  align-self: stretch;
+  padding: 0 12px;
+  border: 0;
+  border-left: 1px solid var(--border);
+  background: var(--accent);
+  color: var(--primary-strong);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.unit-toggle:hover {
+  background: #c8e4ff;
 }
 
 textarea {
@@ -279,31 +295,6 @@ textarea {
   color: var(--muted);
 }
 
-.summary-box {
-  min-height: 200px;
-}
-
-.summary-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 18px;
-  display: grid;
-  gap: 12px;
-}
-
-.summary-list li {
-  background: var(--success);
-  border: 1px solid #cfe8d3;
-  border-radius: 12px;
-  padding: 12px 14px;
-  line-height: 1.5;
-}
-
-.summary-details {
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
-
 @media (max-width: 860px) {
   .layout {
     grid-template-columns: 1fr;
@@ -311,8 +302,7 @@ textarea {
 
   .patient-panel,
   .selector-panel,
-  .prescription-panel,
-  .summary-panel {
+  .prescription-panel {
     grid-column: auto;
     grid-row: auto;
   }
@@ -334,7 +324,8 @@ textarea {
 
   .secondary-button,
   .primary-button,
-  .remove-button {
+  .remove-button,
+  .unit-toggle {
     display: none !important;
   }
 
@@ -349,4 +340,3 @@ textarea {
     border: 1px solid #d8d8d8;
   }
 }
-

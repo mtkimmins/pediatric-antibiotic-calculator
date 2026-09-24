@@ -43,15 +43,17 @@ const antibioticCatalog = {
 };
 
 const state = {
-  selected: []
+  selected: [],
+  weightUnit: 'kg'
 };
 
 const weightInput = document.getElementById('weightKg');
+const weightUnit = document.getElementById('weightUnit');
+const weightToggle = document.getElementById('weightToggle');
 const ageInput = document.getElementById('patientAge');
 const selectEl = document.getElementById('antibioticSelect');
 const addBtn = document.getElementById('addAntibioticBtn');
 const prescriptionList = document.getElementById('prescriptionList');
-const summaryBox = document.getElementById('summaryBox');
 const printBtn = document.getElementById('printButton');
 const notesEl = document.getElementById('clinicalNotes');
 
@@ -67,6 +69,11 @@ function populateAntibioticOptions() {
 function formatNumber(value) {
   if (!Number.isFinite(value)) return '0';
   return Number(value.toFixed(1)).toString();
+}
+
+function getWeightKg() {
+  const enteredWeight = Number(weightInput.value) || 0;
+  return state.weightUnit === 'lbs' ? enteredWeight / 2.20462 : enteredWeight;
 }
 
 function dailyDoseForAntibiotic(antibiotic, weightKg) {
@@ -141,12 +148,11 @@ function buildCard(antibioticKey, antibiotic, weightKg) {
 }
 
 function renderPrescriptions() {
-  const weightKg = Number(weightInput.value) || 0;
+  const weightKg = getWeightKg();
   prescriptionList.innerHTML = '';
 
   if (state.selected.length === 0) {
     prescriptionList.innerHTML = '<div class="empty-state">No antibiotics added yet. Select a medication to build the prescription.</div>';
-    summaryBox.innerHTML = '<p>No active medications.</p>';
     return;
   }
 
@@ -155,43 +161,6 @@ function renderPrescriptions() {
     if (!antibiotic) return;
     prescriptionList.appendChild(buildCard(key, antibiotic, weightKg));
   });
-
-  renderSummary();
-}
-
-function renderSummary() {
-  const weightKg = Number(weightInput.value) || 0;
-  const ageYears = Number(ageInput.value) || 0;
-  const notes = notesEl.value.trim();
-
-  if (state.selected.length === 0) {
-    summaryBox.innerHTML = '<p>No active medications.</p>';
-    return;
-  }
-
-  const summaryItems = state.selected
-    .map(({ key }) => {
-      const antibiotic = antibioticCatalog[key];
-      const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
-      const dosePerAdministration = perDoseAmount(antibiotic, weightKg);
-      return `
-        <li>
-          <strong>${antibiotic.name}</strong><br />
-          ${formatNumber(totalDaily)} mg/day total<br />
-          ${formatNumber(dosePerAdministration)} mg per dose
-        </li>
-      `;
-    })
-    .join('');
-
-  summaryBox.innerHTML = `
-    <ul class="summary-list">${summaryItems}</ul>
-    <div class="summary-details">
-      <p><strong>Weight:</strong> ${formatNumber(weightKg)} kg</p>
-      <p><strong>Age:</strong> ${formatNumber(ageYears)} years</p>
-      ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
-    </div>
-  `;
 }
 
 function addSelectedAntibiotic() {
@@ -205,7 +174,7 @@ function addSelectedAntibiotic() {
 }
 
 function exportPrescriptionSummary() {
-  const weightKg = Number(weightInput.value) || 0;
+  const weightKg = getWeightKg();
   const ageYears = Number(ageInput.value) || 0;
   const notes = notesEl.value.trim();
 
@@ -222,7 +191,7 @@ function exportPrescriptionSummary() {
   state.selected.forEach(({ key }) => {
     const antibiotic = antibioticCatalog[key];
     const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
-    const perDose = perDoseAmount(antibiotic, weightKg); 
+    const perDose = perDoseAmount(antibiotic, weightKg);
     lines.push(`- ${antibiotic.name}: ${formatNumber(totalDaily)} mg/day total; ${formatNumber(perDose)} mg per dose`);
   });
 
@@ -235,9 +204,24 @@ function exportPrescriptionSummary() {
   URL.revokeObjectURL(url);
 }
 
+function toggleWeightUnit() {
+  const currentWeight = Number(weightInput.value);
+  if (Number.isFinite(currentWeight) && currentWeight > 0) {
+    weightInput.value = state.weightUnit === 'kg'
+      ? formatNumber(currentWeight * 2.20462)
+      : formatNumber(currentWeight / 2.20462);
+  }
+
+  state.weightUnit = state.weightUnit === 'kg' ? 'lbs' : 'kg';
+  weightUnit.textContent = state.weightUnit;
+  weightToggle.textContent = state.weightUnit === 'kg' ? 'Switch to lbs' : 'Switch to kg';
+  weightToggle.setAttribute('aria-label', `Switch weight to ${state.weightUnit === 'kg' ? 'pounds' : 'kilograms'}`);
+  renderPrescriptions();
+}
+
 weightInput.addEventListener('input', renderPrescriptions);
 ageInput.addEventListener('input', renderPrescriptions);
-notesEl.addEventListener('input', renderSummary);
+weightToggle.addEventListener('click', toggleWeightUnit);
 addBtn.addEventListener('click', addSelectedAntibiotic);
 printBtn.addEventListener('click', () => {
   exportPrescriptionSummary();

@@ -25,7 +25,8 @@
               <span>Weight</span>
               <div class="input-with-unit">
                 <input id="weightKg" type="number" min="0" step="0.1" value="20" />
-                <span>kg</span>
+                <span id="weightUnit">kg</span>
+                <button id="weightToggle" class="unit-toggle" type="button" aria-label="Switch weight to pounds">Switch to lbs</button>
               </div>
             </label>
 
@@ -66,11 +67,6 @@
 
           <div id="prescriptionList" class="prescription-list" aria-live="polite"></div>
         </section>
-
-        <aside class="panel summary-panel">
-          <h2>Summary</h2>
-          <div id="summaryBox" class="summary-box"></div>
-        </aside>
       </main>
     </div>
 
