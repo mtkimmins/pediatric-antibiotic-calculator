@@ -1,15 +1,79 @@
-<!DOCTYPE>
-<html>
-  <header>
-    
-  </header>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pediatric Antibiotic Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
   <body>
-    banner
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Clinical calculator</p>
+          <h1>Pediatric Antibiotic Calculator</h1>
+        </div>
+        <button id="printButton" class="secondary-button" type="button">Print / Export</button>
+      </header>
 
-    patient weight & age(?)
+      <main class="layout">
+        <section class="panel patient-panel">
+          <h2>Patient details</h2>
 
-    + button (search)
+          <div class="field-row">
+            <label>
+              <span>Weight</span>
+              <div class="input-with-unit">
+                <input id="weightKg" type="number" min="0" step="0.1" value="20" />
+                <span>kg</span>
+              </div>
+            </label>
 
-    print/export button
+            <label>
+              <span>Age</span>
+              <div class="input-with-unit">
+                <input id="patientAge" type="number" min="0" step="1" value="6" />
+                <span>years</span>
+              </div>
+            </label>
+          </div>
+
+          <label>
+            <span>Clinical notes</span>
+            <textarea id="clinicalNotes" rows="3" placeholder="Allergies, renal function, follow-up instructions..."></textarea>
+          </label>
+        </section>
+
+        <section class="panel selector-panel">
+          <h2>Prescription builder</h2>
+
+          <div class="selector-row">
+            <label class="selector-label" for="antibioticSelect">Antibiotic</label>
+            <select id="antibioticSelect"></select>
+            <button id="addAntibioticBtn" class="primary-button" type="button">+ Add</button>
+          </div>
+
+          <div class="hint-box">
+            Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing.
+            Always verify local guidelines and patient-specific factors before dispensing.
+          </div>
+        </section>
+
+        <section class="panel prescription-panel">
+          <div class="section-heading">
+            <h2>Selected antibiotics</h2>
+          </div>
+
+          <div id="prescriptionList" class="prescription-list" aria-live="polite"></div>
+        </section>
+
+        <aside class="panel summary-panel">
+          <h2>Summary</h2>
+          <div id="summaryBox" class="summary-box"></div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
   </body>
 </html>

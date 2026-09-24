@@ -1,12 +1,248 @@
-list = amoxicillin, clavulonic_acid, azithromycin
+const antibioticCatalog = {
+  amoxicillin: {
+    name: 'Amoxicillin',
+    dailyDoseMgPerKg: 40,
+    frequency: 2,
+    route: 'PO',
+    interval: '12 hourly',
+    formulation: [
+      { label: '125 mg/5 mL', concentration: 25, unit: 'mg/mL' },
+      { label: '250 mg/5 mL', concentration: 50, unit: 'mg/mL' },
+      { label: '500 mg capsule', concentration: 500, unit: 'mg/capsule' },
+      { label: '875 mg tablet', concentration: 875, unit: 'mg/tablet' }
+    ],
+    notes: 'Commonly used for mild-to-moderate respiratory and ENT infections.'
+  },
+  clavulanate: {
+    name: 'Amoxicillin + Clavulanic acid',
+    dailyDoseMgPerKg: 45,
+    frequency: 2,
+    route: 'PO',
+    interval: '12 hourly',
+    formulation: [
+      { label: '125/31 mg/5 mL', concentration: 25, unit: 'mg/mL' },
+      { label: '250/62 mg/5 mL', concentration: 50, unit: 'mg/mL' },
+      { label: '400/57 mg/5 mL', concentration: 80, unit: 'mg/mL' },
+      { label: '875/125 mg tablet', concentration: 875, unit: 'mg/tablet' }
+    ],
+    notes: 'Ensure the clavulanate component is appropriate for the indication and dose is adjusted for age.'
+  },
+  azithromycin: {
+    name: 'Azithromycin',
+    dailyDoseMgPerKg: 10,
+    frequency: 1,
+    route: 'PO',
+    interval: 'daily',
+    formulation: [
+      { label: '200 mg/5 mL', concentration: 40, unit: 'mg/mL' },
+      { label: '250 mg tablet', concentration: 250, unit: 'mg/tablet' },
+      { label: '600 mg tablet', concentration: 600, unit: 'mg/tablet' }
+    ],
+    notes: 'Often used for community-acquired pneumonia and selected respiratory pathogens.'
+  }
+};
 
-class PrescriptionField{
+const state = {
+  selected: []
+};
+
+const weightInput = document.getElementById('weightKg');
+const ageInput = document.getElementById('patientAge');
+const selectEl = document.getElementById('antibioticSelect');
+const addBtn = document.getElementById('addAntibioticBtn');
+const prescriptionList = document.getElementById('prescriptionList');
+const summaryBox = document.getElementById('summaryBox');
+const printBtn = document.getElementById('printButton');
+const notesEl = document.getElementById('clinicalNotes');
+
+function populateAntibioticOptions() {
+  Object.entries(antibioticCatalog).forEach(([key, antibiotic]) => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = antibiotic.name;
+    selectEl.appendChild(option);
+  });
 }
 
-class DosingField{
+function formatNumber(value) {
+  if (!Number.isFinite(value)) return '0';
+  return Number(value.toFixed(1)).toString();
 }
 
-class PackagingField{
+function dailyDoseForAntibiotic(antibiotic, weightKg) {
+  return antibiotic.dailyDoseMgPerKg * weightKg;
 }
 
-//Have the + button in .html select for an antibiotic to add. It adds it to the PrescriptionField below (the container that holds all the selected antibiotics). Below each antibiotic in the PrescriptionField, have two side-by-side DosingFields, one for what the doctor put on the physical prescription the pharmacy receives, and the other with selectable menu based on indication. In these DosingFields, there will be a dosing per weight and all the subsequent calculations will populate based on the weight entered at the top of the .html. Then the doctor's DosingField will light up green if it is within the clinical range, or red if it is not. Below these DosingFields is a PackagingField that spans both Dosing Fields where the final dose calculated clinically is divided in pre-determined Canadian products that are hard-coded attributes (quantities, strengths), and consolidates the dose into the most compact and cheapest combination.
+function perDoseAmount(antibiotic, weightKg) {
+  return dailyDoseForAntibiotic(antibiotic, weightKg) / antibiotic.frequency;
+}
+
+function recommendedFormulation(antibiotic, weightKg) {
+  const dosePerAdministration = perDoseAmount(antibiotic, weightKg);
+  const bestMatch = antibiotic.formulation
+    .map((option) => {
+      const volumeOrCount = option.concentration > 0 ? dosePerAdministration / option.concentration : 0;
+      return {
+        option,
+        volumeOrCount,
+        difference: Math.abs(volumeOrCount - Math.round(volumeOrCount || 0))
+      };
+    })
+    .sort((a, b) => a.difference - b.difference)[0];
+
+  return bestMatch || antibiotic.formulation[0];
+}
+
+function buildCard(antibioticKey, antibiotic, weightKg) {
+  const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
+  const perDose = perDoseAmount(antibiotic, weightKg);
+  const recommended = recommendedFormulation(antibiotic, weightKg);
+
+  const card = document.createElement('article');
+  card.className = 'prescription-card';
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'remove-button';
+  removeBtn.textContent = 'Remove';
+  removeBtn.addEventListener('click', () => {
+    state.selected = state.selected.filter((item) => item.key !== antibioticKey);
+    renderPrescriptions();
+  });
+
+  const title = document.createElement('div');
+  title.className = 'card-header';
+  title.innerHTML = `<h3>${antibiotic.name}</h3>`;
+  title.appendChild(removeBtn);
+
+  const meta = document.createElement('div');
+  meta.className = 'card-meta';
+  meta.innerHTML = `
+    <span>${antibiotic.route}</span>
+    <span>${antibiotic.interval}</span>
+    <span>${antibiotic.frequency}-times daily</span>
+  `;
+
+  const dosingInfo = document.createElement('div');
+  dosingInfo.className = 'dose-info';
+  dosingInfo.innerHTML = `
+    <p><strong>Total daily dose:</strong> ${formatNumber(totalDaily)} mg/day</p>
+    <p><strong>Per dose:</strong> ${formatNumber(perDose)} mg</p>
+    <p><strong>Suggested formulation:</strong> ${recommended.option.label}</p>
+    <p><strong>Practical approximation:</strong> ${formatNumber(recommended.volumeOrCount)} unit(s) of ${recommended.option.label}</p>
+  `;
+
+  const note = document.createElement('p');
+  note.className = 'card-note';
+  note.textContent = antibiotic.notes;
+
+  card.append(title, meta, dosingInfo, note);
+  return card;
+}
+
+function renderPrescriptions() {
+  const weightKg = Number(weightInput.value) || 0;
+  prescriptionList.innerHTML = '';
+
+  if (state.selected.length === 0) {
+    prescriptionList.innerHTML = '<div class="empty-state">No antibiotics added yet. Select a medication to build the prescription.</div>';
+    summaryBox.innerHTML = '<p>No active medications.</p>';
+    return;
+  }
+
+  state.selected.forEach(({ key }) => {
+    const antibiotic = antibioticCatalog[key];
+    if (!antibiotic) return;
+    prescriptionList.appendChild(buildCard(key, antibiotic, weightKg));
+  });
+
+  renderSummary();
+}
+
+function renderSummary() {
+  const weightKg = Number(weightInput.value) || 0;
+  const ageYears = Number(ageInput.value) || 0;
+  const notes = notesEl.value.trim();
+
+  if (state.selected.length === 0) {
+    summaryBox.innerHTML = '<p>No active medications.</p>';
+    return;
+  }
+
+  const summaryItems = state.selected
+    .map(({ key }) => {
+      const antibiotic = antibioticCatalog[key];
+      const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
+      const dosePerAdministration = perDoseAmount(antibiotic, weightKg);
+      return `
+        <li>
+          <strong>${antibiotic.name}</strong><br />
+          ${formatNumber(totalDaily)} mg/day total<br />
+          ${formatNumber(dosePerAdministration)} mg per dose
+        </li>
+      `;
+    })
+    .join('');
+
+  summaryBox.innerHTML = `
+    <ul class="summary-list">${summaryItems}</ul>
+    <div class="summary-details">
+      <p><strong>Weight:</strong> ${formatNumber(weightKg)} kg</p>
+      <p><strong>Age:</strong> ${formatNumber(ageYears)} years</p>
+      ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
+    </div>
+  `;
+}
+
+function addSelectedAntibiotic() {
+  const key = selectEl.value;
+  if (!key || state.selected.some((item) => item.key === key)) {
+    return;
+  }
+
+  state.selected.push({ key });
+  renderPrescriptions();
+}
+
+function exportPrescriptionSummary() {
+  const weightKg = Number(weightInput.value) || 0;
+  const ageYears = Number(ageInput.value) || 0;
+  const notes = notesEl.value.trim();
+
+  const lines = [
+    'Pediatric Antibiotic Calculator',
+    '==============================',
+    `Weight: ${formatNumber(weightKg)} kg`,
+    `Age: ${formatNumber(ageYears)} years`,
+    notes ? `Notes: ${notes}` : null,
+    '',
+    'Selected antibiotics:'
+  ];
+
+  state.selected.forEach(({ key }) => {
+    const antibiotic = antibioticCatalog[key];
+    const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
+    const perDose = perDoseAmount(antibiotic, weightKg); 
+    lines.push(`- ${antibiotic.name}: ${formatNumber(totalDaily)} mg/day total; ${formatNumber(perDose)} mg per dose`);
+  });
+
+  const blob = new Blob([lines.filter(Boolean).join('\n') + '\n'], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'pediatric-antibiotic-prescription.txt';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+weightInput.addEventListener('input', renderPrescriptions);
+ageInput.addEventListener('input', renderPrescriptions);
+notesEl.addEventListener('input', renderSummary);
+addBtn.addEventListener('click', addSelectedAntibiotic);
+printBtn.addEventListener('click', () => {
+  exportPrescriptionSummary();
+  window.print();
+});
+
+populateAntibioticOptions();
+renderPrescriptions();
