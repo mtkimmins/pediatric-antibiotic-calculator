@@ -10,9 +10,9 @@ B[Clinical]-->BA
 C[Patient Material]-->CA
 
 %% STYLES
-classDef done fill:#1C1C1C
-classDef prog fill:#F5E8D8
-classDef lock fill:#FF6F61
+classDef done fill:#5D0E41
+classDef prog fill:#A0153E
+classDef lock fill:#FF204E
 
 %% CLASSES
 class AZ done;
