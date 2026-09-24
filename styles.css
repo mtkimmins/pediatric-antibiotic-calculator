@@ -11,7 +11,6 @@
   --danger: #fcecec;
   --shadow: 0 16px 32px rgba(15, 41, 68, 0.08);
 }
-
 * { box-sizing: border-box; }
 body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(180deg, #eef5fb 0%, #f8fafd 100%); color: var(--text); }
 button, input, select, textarea { font: inherit; }
@@ -31,7 +30,7 @@ label span { color: var(--text); }
 .input-with-unit { display: flex; align-items: center; width: 100%; border: 1px solid var(--border); border-radius: 10px; background: #fbfcff; overflow: hidden; }
 .input-with-unit input { width: 100%; padding: 12px 14px; border: 0; background: transparent; }
 .input-with-unit > span { padding-right: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; }
-.unit-toggle { align-self: stretch; padding: 0 12px; border: 0; border-left: 1px solid var(--border); background: var(--accent); color: var(--primary-strong); cursor: pointer; font-size: .85rem; white-space: nowrap; }
+.unit-toggle { align-self: stretch; padding: 0 12px; border: 0; border-left: 1px solid var(--border); background: var(--accent); color: var(--primary-strong); cursor: pointer; font-size: .85rem; width: auto; }
 .unit-toggle:hover { background: #c8e4ff; }
 textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; resize: vertical; min-height: 110px; }
 .selector-row { display: grid; grid-template-columns: 120px 1fr auto; gap: 12px; align-items: end; margin-bottom: 24px; }
@@ -56,9 +55,15 @@ textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); bor
 .dose-panel label { gap: 5px; font-size: .85rem; }
 .dose-panel input, .dose-panel select { padding: 9px 10px; }
 .dose-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.range-value { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; padding: 3px 0; }
+.range-value span { color: var(--muted); font-size: .85rem; }
+.range-value strong { color: var(--primary-strong); text-align: right; }
 .total-quantity { display: flex; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid #cbd3da; }
 .total-quantity span { color: var(--muted); font-size: .85rem; }
 .total-quantity strong { color: var(--primary-strong); }
+.dose-panel.status-green { background: #e8f6ec; border-color: #4caf68; }
+.dose-panel.status-yellow { background: #fff8dc; border-color: #d5ae2e; }
+.dose-panel.status-red { background: #fcecec; border-color: #d9534f; }
 .prescription-content { min-width: 0; }
 .dose-info { background: rgba(209, 232, 255, .35); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 16px 0 10px; }
 .dose-info p { margin: 0 0 8px; }
