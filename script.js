@@ -1,6 +1,7 @@
 const antibioticCatalog = {
   amoxicillin: {
     name: 'Amoxicillin',
+    indications: [],
     dailyDoseMgPerKg: 40,
     frequency: 2,
     route: 'PO',
@@ -15,6 +16,7 @@ const antibioticCatalog = {
   },
   clavulanate: {
     name: 'Amoxicillin + Clavulanic acid',
+    indications: [],
     dailyDoseMgPerKg: 45,
     frequency: 2,
     route: 'PO',
@@ -29,6 +31,7 @@ const antibioticCatalog = {
   },
   azithromycin: {
     name: 'Azithromycin',
+    indications: [],
     dailyDoseMgPerKg: 10,
     frequency: 1,
     route: 'PO',
@@ -100,7 +103,40 @@ function recommendedFormulation(antibiotic, weightKg) {
   return bestMatch || antibiotic.formulation[0];
 }
 
-function buildCard(antibioticKey, antibiotic, weightKg) {
+function buildIndicationSelect(antibiotic, selectedIndication) {
+  const label = document.createElement('label');
+  label.className = 'indication-field';
+  label.innerHTML = '<span>Indication</span>';
+
+  const select = document.createElement('select');
+  select.className = 'indication-select';
+  select.setAttribute('aria-label', `Indication for ${antibiotic.name}`);
+
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = antibiotic.indications.length ? 'Select an indication' : 'No indications configured';
+  defaultOption.disabled = antibiotic.indications.length === 0;
+  defaultOption.selected = !selectedIndication;
+  select.appendChild(defaultOption);
+
+  antibiotic.indications.forEach((indication) => {
+    const option = document.createElement('option');
+    option.value = indication;
+    option.textContent = indication;
+    option.selected = indication === selectedIndication;
+    select.appendChild(option);
+  });
+
+  select.addEventListener('change', () => {
+    const item = state.selected.find(({ key }) => key === antibiotic.key);
+    if (item) item.indication = select.value;
+  });
+
+  label.appendChild(select);
+  return label;
+}
+
+function buildCard(selectedItem, antibiotic, weightKg) {
   const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
   const perDose = perDoseAmount(antibiotic, weightKg);
   const recommended = recommendedFormulation(antibiotic, weightKg);
@@ -113,7 +149,7 @@ function buildCard(antibioticKey, antibiotic, weightKg) {
   removeBtn.className = 'remove-button';
   removeBtn.textContent = 'Remove';
   removeBtn.addEventListener('click', () => {
-    state.selected = state.selected.filter((item) => item.key !== antibioticKey);
+    state.selected = state.selected.filter((item) => item.key !== selectedItem.key);
     renderPrescriptions();
   });
 
@@ -130,6 +166,8 @@ function buildCard(antibioticKey, antibiotic, weightKg) {
     <span>${antibiotic.frequency}-times daily</span>
   `;
 
+  const indication = buildIndicationSelect(antibiotic, selectedItem.indication);
+
   const dosingInfo = document.createElement('div');
   dosingInfo.className = 'dose-info';
   dosingInfo.innerHTML = `
@@ -143,7 +181,7 @@ function buildCard(antibioticKey, antibiotic, weightKg) {
   note.className = 'card-note';
   note.textContent = antibiotic.notes;
 
-  card.append(title, meta, dosingInfo, note);
+  card.append(title, meta, indication, dosingInfo, note);
   return card;
 }
 
@@ -156,10 +194,10 @@ function renderPrescriptions() {
     return;
   }
 
-  state.selected.forEach(({ key }) => {
-    const antibiotic = antibioticCatalog[key];
+  state.selected.forEach((selectedItem) => {
+    const antibiotic = antibioticCatalog[selectedItem.key];
     if (!antibiotic) return;
-    prescriptionList.appendChild(buildCard(key, antibiotic, weightKg));
+    prescriptionList.appendChild(buildCard(selectedItem, antibiotic, weightKg));
   });
 }
 
@@ -169,7 +207,7 @@ function addSelectedAntibiotic() {
     return;
   }
 
-  state.selected.push({ key });
+  state.selected.push({ key, indication: '' });
   renderPrescriptions();
 }
 
@@ -188,11 +226,12 @@ function exportPrescriptionSummary() {
     'Selected antibiotics:'
   ];
 
-  state.selected.forEach(({ key }) => {
+  state.selected.forEach(({ key, indication }) => {
     const antibiotic = antibioticCatalog[key];
     const totalDaily = dailyDoseForAntibiotic(antibiotic, weightKg);
     const perDose = perDoseAmount(antibiotic, weightKg);
-    lines.push(`- ${antibiotic.name}: ${formatNumber(totalDaily)} mg/day total; ${formatNumber(perDose)} mg per dose`);
+    const indicationText = indication ? ` (${indication})` : '';
+    lines.push(`- ${antibiotic.name}${indicationText}: ${formatNumber(totalDaily)} mg/day total; ${formatNumber(perDose)} mg per dose`);
   });
 
   const blob = new Blob([lines.filter(Boolean).join('\n') + '\n'], { type: 'text/plain;charset=utf-8' });

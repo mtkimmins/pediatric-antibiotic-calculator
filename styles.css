@@ -2,6 +2,7 @@
   --bg: #f3f7fb;
   --panel: #ffffff;
   --panel-alt: #eef5ff;
+  --topbar-subpanel: #eef1f4;
   --primary: #005fb8;
   --primary-strong: #003d73;
   --accent: #d9ecff;
@@ -37,15 +38,19 @@ textarea {
 }
 
 .topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px 24px;
+  align-items: start;
   padding: 24px 28px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 18px;
   box-shadow: var(--shadow);
+}
+
+.topbar-heading {
+  min-width: 0;
 }
 
 .eyebrow {
@@ -69,8 +74,13 @@ h1 {
 }
 
 .liability {
-  max-width: 720px;
-  margin: 12px 0 0;
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid #d7dde3;
+  border-radius: 10px;
+  background: var(--topbar-subpanel);
   color: var(--muted);
   line-height: 1.5;
 }
@@ -83,6 +93,7 @@ h1 {
 }
 
 .panel {
+  width: 100%;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -123,6 +134,7 @@ label span {
 
 .input-with-unit input,
 .selector-row select,
+.indication-select,
 textarea {
   width: 100%;
   padding: 12px 14px;
@@ -196,6 +208,8 @@ textarea {
 }
 
 .secondary-button {
+  align-self: start;
+  white-space: nowrap;
   background: var(--accent);
   color: var(--primary-strong);
   font-weight: 700;
@@ -212,6 +226,10 @@ textarea {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+}
+
+.section-heading h2 {
+  margin-bottom: 0;
 }
 
 .prescription-list {
@@ -242,7 +260,7 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .card-meta span {
@@ -252,6 +270,16 @@ textarea {
   font-size: 0.8rem;
   color: var(--primary-strong);
   font-weight: 700;
+}
+
+.indication-field {
+  max-width: 420px;
+  margin-bottom: 16px;
+}
+
+.indication-select:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 .dose-info {
@@ -299,8 +327,11 @@ textarea {
   }
 
   .topbar {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .secondary-button {
+    justify-self: start;
   }
 }
 
