@@ -94,25 +94,29 @@ function perDoseAmount(antibiotic, weightKg) {
 
 function recommendedFormulation(antibiotic, weightKg) {
   const dosePerAdministration = perDoseAmount(antibiotic, weightKg);
-  const bestMatch = antibiotic.formulation
-    .map((option) => {
-      const volumeOrCount = option.concentration > 0 ? dosePerAdministration / option.concentration : 0;
-      return { option, volumeOrCount, difference: Math.abs(volumeOrCount - Math.round(volumeOrCount || 0)) };
-    })
-    .sort((a, b) => a.difference - b.difference)[0];
-  return bestMatch || antibiotic.formulation[0];
+  return antibiotic.formulation.map((option) => {
+    const volumeOrCount = option.concentration > 0 ? dosePerAdministration / option.concentration : 0;
+    return { option, volumeOrCount, difference: Math.abs(volumeOrCount - Math.round(volumeOrCount || 0)) };
+  }).sort((a, b) => a.difference - b.difference)[0] || { option: antibiotic.formulation[0], volumeOrCount: 0 };
 }
 
 function getIndication(antibiotic, name) {
   return antibiotic.indications.find((indication) => indication.name === name) || antibiotic.indications[0];
 }
 
+function getDosesPerDay(item) {
+  const frequency = Number(item.frequency) || 0;
+  if (item.frequencyUnit === 'hours') return frequency > 0 ? 24 / frequency : 0;
+  if (item.frequencyUnit === 'BID') return 2;
+  if (item.frequencyUnit === 'TID') return 3;
+  if (item.frequencyUnit === 'QID') return 4;
+  return frequency;
+}
+
 function calculateTotalQuantity(item) {
   const dose = Number(item.dose) || 0;
   const doseInMg = item.doseUnit === 'ml' ? dose * (Number(item.strength) || 0) : dose;
-  const frequency = Number(item.frequency) || 0;
-  const dosesPerDay = item.frequencyUnit === 'hours' ? (frequency > 0 ? 24 / frequency : 0) : frequency;
-  return doseInMg * dosesPerDay * (Number(item.duration) || 0);
+  return doseInMg * getDosesPerDay(item) * (Number(item.duration) || 0);
 }
 
 function createNumberInput(labelText, value, step, onInput) {
@@ -132,15 +136,13 @@ function buildDosePanel(selectedItem) {
   const panel = document.createElement('div');
   panel.className = 'dose-panel';
   const heading = document.createElement('h3');
-  heading.textContent = 'Dose details';
+  heading.textContent = 'Prescriber RX Dosing';
   panel.appendChild(heading);
 
+  const updateTotal = () => { total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`; };
   const doseRow = document.createElement('div');
   doseRow.className = 'dose-input-row';
-  const dose = createNumberInput('Dose', selectedItem.dose, '0.1', (value) => {
-    selectedItem.dose = value;
-    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
-  });
+  const dose = createNumberInput('Dose', selectedItem.dose, '0.1', (value) => { selectedItem.dose = value; updateTotal(); });
   doseRow.appendChild(dose.label);
 
   const doseUnit = document.createElement('label');
@@ -151,50 +153,43 @@ function buildDosePanel(selectedItem) {
   doseUnitSelect.addEventListener('change', () => {
     selectedItem.doseUnit = doseUnitSelect.value;
     strength.label.style.display = selectedItem.doseUnit === 'ml' ? '' : 'none';
-    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+    updateTotal();
   });
   doseUnit.appendChild(doseUnitSelect);
   doseRow.appendChild(doseUnit);
   panel.appendChild(doseRow);
 
-  const strength = createNumberInput('Strength (mg/mL)', selectedItem.strength, '0.1', (value) => {
-    selectedItem.strength = value;
-    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
-  });
+  const strength = createNumberInput('Strength (mg/mL)', selectedItem.strength, '0.1', (value) => { selectedItem.strength = value; updateTotal(); });
   strength.label.style.display = selectedItem.doseUnit === 'ml' ? '' : 'none';
   panel.appendChild(strength.label);
 
   const frequencyRow = document.createElement('div');
   frequencyRow.className = 'dose-input-row';
-  const frequency = createNumberInput('Frequency', selectedItem.frequency, '0.1', (value) => {
-    selectedItem.frequency = value;
-    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
-  });
+  const frequency = createNumberInput('Frequency', selectedItem.frequency, '0.1', (value) => { selectedItem.frequency = value; updateTotal(); });
   frequencyRow.appendChild(frequency.label);
   const frequencyUnit = document.createElement('label');
-  frequencyUnit.innerHTML = '<span>Frequency unit</span>';
+  frequencyUnit.innerHTML = '<span>Schedule</span>';
   const frequencyUnitSelect = document.createElement('select');
-  frequencyUnitSelect.innerHTML = '<option value="hours">hours</option><option value="times/day">times per day</option>';
+  frequencyUnitSelect.innerHTML = '<option value="hours">q hours</option><option value="BID">BID</option><option value="TID">TID</option><option value="QID">QID</option><option value="times/day">times/day</option>';
   frequencyUnitSelect.value = selectedItem.frequencyUnit;
   frequencyUnitSelect.addEventListener('change', () => {
     selectedItem.frequencyUnit = frequencyUnitSelect.value;
-    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+    frequency.input.disabled = ['BID', 'TID', 'QID'].includes(selectedItem.frequencyUnit);
+    updateTotal();
   });
   frequencyUnit.appendChild(frequencyUnitSelect);
   frequencyRow.appendChild(frequencyUnit);
   panel.appendChild(frequencyRow);
+  frequency.input.disabled = ['BID', 'TID', 'QID'].includes(selectedItem.frequencyUnit);
 
-  const duration = createNumberInput('Duration (days)', selectedItem.duration, '1', (value) => {
-    selectedItem.duration = value;
-    total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
-  });
+  const duration = createNumberInput('Duration (days)', selectedItem.duration, '1', (value) => { selectedItem.duration = value; updateTotal(); });
   panel.appendChild(duration.label);
 
   const totalBox = document.createElement('div');
   totalBox.className = 'total-quantity';
   totalBox.innerHTML = '<span>Total quantity</span><strong></strong>';
   const total = totalBox.querySelector('strong');
-  total.textContent = `${formatNumber(calculateTotalQuantity(selectedItem))} mg`;
+  updateTotal();
   panel.appendChild(totalBox);
   return panel;
 }
@@ -205,21 +200,14 @@ function buildIndicationSelect(antibiotic, selectedItem) {
   label.innerHTML = '<span>Indication</span>';
   const select = document.createElement('select');
   select.className = 'indication-select';
-  const placeholder = document.createElement('option');
-  placeholder.value = '';
-  placeholder.textContent = 'Select an indication';
-  placeholder.disabled = true;
-  select.appendChild(placeholder);
-
   antibiotic.indications.forEach((indication) => {
     const option = document.createElement('option');
     option.value = indication.name;
-    option.textContent = `${indication.name} — ${indication.dose} mg, ${indication.frequency} ${indication.frequencyUnit}`;
+    option.textContent = indication.name;
     select.appendChild(option);
   });
   select.value = selectedItem.indication;
   select.addEventListener('change', () => {
-    selectedItem.indication = select.value;
     const indication = getIndication(antibiotic, select.value);
     if (indication) Object.assign(selectedItem, indication, { indication: indication.name });
     renderPrescriptions();
@@ -234,20 +222,14 @@ function buildCard(selectedItem, antibiotic, weightKg) {
   const recommended = recommendedFormulation(antibiotic, weightKg);
   const card = document.createElement('article');
   card.className = 'prescription-card';
-
   const dosePanel = buildDosePanel(selectedItem);
   const content = document.createElement('div');
   content.className = 'prescription-content';
-
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
   removeBtn.className = 'remove-button';
   removeBtn.textContent = 'Remove';
-  removeBtn.addEventListener('click', () => {
-    state.selected = state.selected.filter((item) => item !== selectedItem);
-    renderPrescriptions();
-  });
-
+  removeBtn.addEventListener('click', () => { state.selected = state.selected.filter((item) => item !== selectedItem); renderPrescriptions(); });
   const title = document.createElement('div');
   title.className = 'card-header';
   title.innerHTML = `<h3>${antibiotic.name}</h3>`;
@@ -258,7 +240,7 @@ function buildCard(selectedItem, antibiotic, weightKg) {
   const indication = buildIndicationSelect(antibiotic, selectedItem);
   const dosingInfo = document.createElement('div');
   dosingInfo.className = 'dose-info';
-  dosingInfo.innerHTML = `<p><strong>Reference total daily dose:</strong> ${formatNumber(totalDaily)} mg/day</p><p><strong>Reference per dose:</strong> ${formatNumber(perDose)} mg</p><p><strong>Suggested formulation:</strong> ${recommended.option.label}</p><p><strong>Practical approximation:</strong> ${formatNumber(recommended.volumeOrCount)} unit(s) of ${recommended.option.label}</p>`;
+  dosingInfo.innerHTML = `<p><strong>Reference total daily dose:</strong> ${formatNumber(totalDaily)} mg/day</p><p><strong>Reference per dose:</strong> ${formatNumber(perDose)} mg</p><p><strong>Suggested formulation:</strong> ${recommended.option.label} (${formatNumber(recommended.volumeOrCount)} per dose)</p>`;
   const note = document.createElement('p');
   note.className = 'card-note';
   note.textContent = antibiotic.notes;
@@ -289,10 +271,10 @@ function addSelectedAntibiotic() {
 }
 
 function exportPrescriptionSummary() {
-  const lines = ['Pediatric Antibiotic Calculator', '==============================', `Weight: ${formatNumber(getWeightKg())} kg`, `Age: ${formatNumber(Number(ageInput.value) || 0)} years`, notesEl.value.trim() ? `Notes: ${notesEl.value.trim()}` : null, '', 'Selected antibiotics:'];
+  const lines = ['Pediatric Antibiotic Calculator', '==============================', `Weight: ${formatNumber(getWeightKg())} kg`, `Age: ${formatNumber(Number(ageInput.value) || 0)} years`, notesEl.value ? `Notes: ${notesEl.value}` : ''];
   state.selected.forEach((item) => {
     const antibiotic = antibioticCatalog[item.key];
-    lines.push(`- ${antibiotic.name} (${item.indication}): ${formatNumber(calculateTotalQuantity(item))} mg total`);
+    lines.push(`- ${antibiotic.name} (${item.indication}): ${formatNumber(item.dose)} ${item.doseUnit}, ${item.frequencyUnit === 'hours' ? `q${formatNumber(item.frequency)}h` : item.frequencyUnit}, ${formatNumber(item.duration)} days; ${formatNumber(calculateTotalQuantity(item))} mg total`);
   });
   const blob = new Blob([lines.filter(Boolean).join('\n') + '\n'], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
