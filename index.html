@@ -20,51 +20,40 @@
         <section class="panel patient-panel">
           <h2>Patient details</h2>
           <div class="field-row">
-            <label><span>Weight</span><div class="input-with-unit"><input id="weightKg" type="number" min="0" step="0.1" value="20" /><span id="weightUnit">kg</span><button id="weightToggle" class="unit-toggle">lbs</button></div></label>
+            <label><span>Weight</span><div class="input-with-unit"><input id="weightKg" type="number" min="0" step="0.1" value="20" /><span id="weightUnit">kg</span><button id="weightToggle" class="unit-toggle" type="button">lbs</button></div></label>
             <label><span>Age</span><div class="input-with-unit"><input id="patientAge" type="number" min="0" step="1" value="6" /><span>years</span></div></label>
           </div>
           <fieldset class="allergies-fieldset">
-            <legend><span>Known allergies</span></legend>
+            <legend>Known allergies</legend>
             <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" name="allergies" value="penicillin" />
-                <span>Penicillin</span>
-              </label>
-              <label class="checkbox-label">
-                <input type="checkbox" name="allergies" value="amoxicillin" />
-                <span>Amoxicillin</span>
-              </label>
-              <label class="checkbox-label">
-                <input type="checkbox" name="allergies" value="azithromycin" />
-                <span>Azithromycin</span>
-              </label>
-              <label class="checkbox-label">
-                <input type="checkbox" name="allergies" value="clavulanate" />
-                <span>Amoxicillin + Clavulanic acid</span>
-              </label>
+              <label class="checkbox-label"><input type="checkbox" name="allergies" value="penicillin" /><span>Penicillin</span></label>
+              <label class="checkbox-label"><input type="checkbox" name="allergies" value="amoxicillin" /><span>Amoxicillin</span></label>
+              <label class="checkbox-label"><input type="checkbox" name="allergies" value="azithromycin" /><span>Azithromycin</span></label>
+              <label class="checkbox-label"><input type="checkbox" name="allergies" value="clavulanate" /><span>Amoxicillin + Clavulanic acid</span></label>
             </div>
           </fieldset>
           <label><span>Clinical notes</span><textarea id="clinicalNotes" rows="3" placeholder="Renal function, follow-up instructions..."></textarea></label>
         </section>
         <section class="panel prescription-panel">
           <h2>Prescription builder</h2>
-          <div class="selector-row"><label class="selector-label" for="antibioticSelect">Antibiotic</label><select id="antibioticSelect"></select><button id="addAntibioticBtn" class="primary-button">Add</button></div>
+          <div class="selector-row"><label class="selector-label" for="antibioticSelect">Antibiotic</label><select id="antibioticSelect"></select><button id="addAntibioticBtn" class="primary-button" type="button">Add</button></div>
           <div class="section-heading"><h2>Selected antibiotics</h2></div>
           <div id="prescriptionList" class="prescription-list" aria-live="polite"></div>
+        </section>
+        <section class="panel signature-panel">
+          <h2>Pharmacist verification</h2>
+          <label for="pharmacistSignature"><span>RPh digital signature</span><input id="pharmacistSignature" type="text" placeholder="Type your name" autocomplete="name" /></label>
+          <p class="field-help">This signature is included on the printout and is not transmitted or stored.</p>
         </section>
       </main>
       <footer class="page-footer">
         <div class="footer-content">
-          <div class="footer-links">
-            <a href="https://github.com/mtkimmins/pediatric-antibiotic-calculator" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
-          </div>
-          <div class="footer-info">
-            <p class="last-updated">Last updated: <span id="lastUpdatedDate">September 26, 2026</span></p>
-            <p class="footer-note">Dosing verified against clinical references</p>
-          </div>
+          <div class="footer-links"><a href="https://github.com/mtkimmins/pediatric-antibiotic-calculator" target="_blank" rel="noopener noreferrer">GitHub Repository</a></div>
+          <div class="footer-info"><p class="last-updated">Last updated: <span id="lastUpdatedDate">September 26, 2026</span></p><p class="footer-note">Dosing verified against clinical references</p></div>
         </div>
       </footer>
     </div>
     <script src="script.js"></script>
+    <script src="enhancements.js"></script>
   </body>
 </html>
