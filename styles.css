@@ -23,7 +23,7 @@ h1 { margin-bottom: 0; font-size: clamp(2rem, 2vw + 1rem, 2.8rem); }
 .liability { grid-column: 1 / -1; width: 100%; margin: 0; padding: 12px 16px; border: 1px solid #d7dde3; border-radius: 10px; background: var(--topbar-subpanel); color: var(--muted); line-height: 1.5; font-size: .85rem; }
 .layout { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 24px; }
 .panel { width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 22px 20px; box-shadow: var(--shadow); }
-.patient-panel, .prescription-panel { grid-column: 1 / -1; }
+.patient-panel, .prescription-panel, .references-panel, .signature-panel { grid-column: 1 / -1; }
 .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 label { display: grid; gap: 8px; font-weight: 600; }
 label span { color: var(--text); }
@@ -70,12 +70,26 @@ textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); bor
 .dose-panel.status-yellow { background: #fff8dc; border-color: #d5ae2e; }
 .dose-panel.status-red { background: #fcecec; border-color: #d9534f; }
 .prescription-content { min-width: 0; }
+.packaging-panel { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #f9fafb; margin: 16px 0; }
+.packaging-panel h3 { margin: 0 0 8px; font-size: 1rem; }
+.packaging-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; }
+.packaging-icon { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; background: white; border: 1px solid var(--border); border-radius: 8px; text-align: center; gap: 6px; }
+.strength-badge { font-size: .75rem; font-weight: 600; color: var(--primary-strong); word-break: break-word; }
+.pack-count { font-size: .85rem; color: var(--muted); }
 .dose-info { background: rgba(209, 232, 255, .35); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 16px 0 10px; }
 .dose-info p { margin: 0 0 8px; }
 .dose-info p:last-child { margin-bottom: 0; }
+.antibiotic-note { font-size: .85rem; color: var(--muted); font-style: italic; }
 .card-note { color: var(--muted); margin-bottom: 0; }
 .remove-button { background: var(--danger); color: #8b1f1f; font-weight: 700; padding: 8px 14px; font-size: 1.5rem; line-height: 1; }
 .empty-state { background: #f8fafc; border: 1px dashed var(--border); border-radius: 12px; padding: 18px; color: var(--muted); }
+.references-content { padding: 0; }
+.reference-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.reference-list li { padding: 8px 0; }
+.reference-list a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.reference-list a:hover { text-decoration: underline; }
+.reference-note { font-size: .85rem; color: var(--muted); margin: 0; }
+.field-help { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
 .page-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
 .footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .footer-links a { color: var(--primary); text-decoration: none; font-weight: 600; }
@@ -84,4 +98,4 @@ textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); bor
 .last-updated { font-size: .9rem; color: var(--muted); margin: 0; }
 .footer-note { font-size: .85rem; color: var(--muted); margin: 4px 0 0; }
 @media (max-width: 860px) { .field-row, .selector-row, .checkbox-group { grid-template-columns: 1fr; } .topbar { grid-template-columns: 1fr; } .secondary-button { justify-self: start; } .dose-panels { grid-template-columns: 1fr; } .footer-content { flex-direction: column; align-items: flex-start; } .footer-info { text-align: left; } }
-@media print { body { background: white; } .secondary-button, .primary-button, .remove-button, .unit-toggle { display: none !important; } .app-shell { max-width: none; padding: 0; } .panel, .topbar, .page-footer { box-shadow: none; border: none; padding: 0; margin: 0; } .liability { border: none; background: none; } }
+@media print { body { background: white; } .secondary-button, .primary-button, .remove-button, .unit-toggle { display: none !important; } .app-shell { max-width: none; padding: 0; } .panel, .topbar, .page-footer { box-shadow: none; border: none; padding: 0; margin: 0; } .liability { border: none; background: none; } .prescription-card { page-break-inside: avoid; } .packaging-panel { display: grid; grid-template-columns: 1fr; } }
