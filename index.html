@@ -13,26 +13,69 @@
           <p class="eyebrow">Clinical calculator</p>
           <h1>Pediatric Antibiotic Calculator</h1>
         </div>
-        <button id="printButton" class="secondary-button" type="button">Print / Export</button>
-        <p class="liability">Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines and patient-specific factors before dispensing.</p>
+        <button id="printButton" class="secondary-button sticky-print-button" type="button">Print / Export</button>
+        <p class="liability">Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines and patient-specific factors before prescribing.</p>
       </header>
+
       <main class="layout">
         <section class="panel patient-panel">
           <h2>Patient details</h2>
           <div class="field-row">
-            <label><span>Weight</span><div class="input-with-unit"><input id="weightKg" type="number" min="0" step="0.1" value="20" /><span id="weightUnit">kg</span><button id="weightToggle" class="unit-toggle" type="button" aria-label="Switch weight to pounds">Switch to lbs</button></div></label>
-            <label><span>Age</span><div class="input-with-unit"><input id="patientAge" type="number" min="0" step="1" value="6" /><span>years</span></div></label>
+            <label>
+              <span>Weight</span>
+              <div class="input-with-unit">
+                <input id="weightKg" type="number" min="0" step="0.1" value="20" />
+                <span id="weightUnit">kg</span>
+                <button id="weightToggle" class="unit-toggle" type="button" aria-label="Toggle weight unit">kg → lb</button>
+              </div>
+            </label>
+            <label>
+              <span>Age</span>
+              <div class="input-with-unit">
+                <input id="patientAge" type="number" min="0" step="1" value="6" />
+                <span>years</span>
+              </div>
+            </label>
           </div>
-          <label><span>Clinical notes</span><textarea id="clinicalNotes" rows="3" placeholder="Allergies, renal function, follow-up instructions..."></textarea></label>
+
+          <label>
+            <span>Clinical notes</span>
+            <textarea id="clinicalNotes" rows="3" placeholder="Allergies, renal function, follow-up instructions..."></textarea>
+          </label>
+
+          <div class="signature-section">
+            <div class="signature-header">
+              <h3>Clinician signature</h3>
+              <button id="signatureToggleBtn" class="secondary-button signature-toggle" type="button" aria-expanded="false">
+                Reveal signature box
+              </button>
+            </div>
+
+            <div id="signaturePanel" class="signature-panel hidden" aria-live="polite">
+              <canvas id="signatureCanvas" width="640" height="180" aria-label="Signature drawing area"></canvas>
+              <div class="signature-actions">
+                <button id="signatureClearBtn" class="tertiary-button" type="button">Clear</button>
+                <button id="signatureSaveBtn" class="primary-button small-button" type="button">Save signature</button>
+              </div>
+            </div>
+          </div>
         </section>
+
         <section class="panel prescription-panel">
           <h2>Prescription builder</h2>
-          <div class="selector-row"><label class="selector-label" for="antibioticSelect">Antibiotic</label><select id="antibioticSelect"></select><button id="addAntibioticBtn" class="primary-button" type="button">+ Add</button></div>
-          <div class="section-heading"><h2>Selected antibiotics</h2></div>
+          <div class="selector-row">
+            <label class="selector-label" for="antibioticSelect">Antibiotic</label>
+            <select id="antibioticSelect"></select>
+            <button id="addAntibioticBtn" class="primary-button" type="button">Add antibiotic</button>
+          </div>
+          <div class="section-heading">
+            <h2>Selected antibiotics</h2>
+          </div>
           <div id="prescriptionList" class="prescription-list" aria-live="polite"></div>
         </section>
       </main>
     </div>
+
     <script src="script.js"></script>
   </body>
 </html>
