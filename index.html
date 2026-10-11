@@ -1,38 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!--HEAD COMPLETE-->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pediatric Antibiotic Calculator</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  
+
   <body>
     <div class="app-shell">
-      <!---->
       <header class="topbar">
         <div class="topbar-heading">
           <p class="eyebrow">PharmAlta Clinical Tool</p>
           <h1>Pediatric Antibiotic Calculator</h1>
         </div>
-        <p class="liability">UNDER CONSTRUCTION: DO NOT USE CLINICALLY YET. <br>Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines and patient-specific factors before dispensing.</p>
+        <p class="liability">UNDER CONSTRUCTION: DO NOT USE CLINICALLY YET. <br>Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines before prescribing.</p>
       </header>
-      
-      <button id="printButton" class="secondary-button" type="button">Print / Export</button>
-      
+
+      <div class="print-button-wrap">
+        <button id="printButton" class="secondary-button sticky-print-button" type="button">Print / Export</button>
+      </div>
+
       <main class="layout">
         <section class="panel patient-panel">
           <h2>Patient details</h2>
           <div class="field-row">
-            <label>
+            <label class="field-block">
               <span>Weight</span>
               <div class="input-with-unit">
                 <input id="weightKg" type="number" min="0" step="0.1" value="20" />
-                <span id="weightUnit">kg</span>
-                <button id="weightToggle" class="unit-toggle" type="button" aria-label="Toggle weight unit">kg → lb</button>
+                <button id="weightToggle" class="unit-toggle" type="button" aria-label="Toggle weight unit" aria-pressed="false">
+                  <span id="weightUnit">kg</span>
+                </button>
+              </div>
             </label>
-            <label>
+            <label class="field-block">
               <span>Age</span>
               <div class="input-with-unit">
                 <input id="patientAge" type="number" min="0" step="1" value="6" />
@@ -40,12 +42,10 @@
               </div>
             </label>
           </div>
-          
-          <div class="kg-conversion">
-            <label>
-              <span>Clinical weight used = </span>
-              <span id="clinical-kg"></span> kg              
-            </label>
+
+          <div class="clinical-weight-box" aria-live="polite">
+            <span>Clinical weight used = </span>
+            <strong id="clinicalWeightValue">20.0 kg</strong>
           </div>
 
           <label>
@@ -54,16 +54,15 @@
           </label>
         </section>
 
-        
         <section class="panel prescription-panel">
           <h2>Prescription builder</h2>
           <div class="selector-row">
             <label class="selector-label" for="antibioticSelect">Antibiotic</label>
             <select id="antibioticSelect"></select>
-            <button id="addAntibioticBtn" class="primary-button" type="button">Add</button>
           </div>
+          <div id="prescriptionList" class="prescription-list"></div>
         </section>
-          
+
         <section>
           <div class="signature-section">
             <div class="signature-header">
@@ -83,11 +82,11 @@
           </div>
         </section>
       </main>
-      
+
       <footer class="page-footer">
         <div class="footer-content">
           <div class="footer-links"><a href="https://github.com/mtkimmins/pediatric-antibiotic-calculator" target="_blank" rel="noopener noreferrer">GitHub Repository</a></div>
-          <div class="footer-info"><p class="last-updated">Last updated: <span id="lastUpdatedDate">September 26, 2026</span></p><p class="footer-note">Dosing NOT YET verified against clinical references</p></div>
+          <div class="footer-info"><p class="last-updated">Last updated: <span id="lastUpdatedDate">September 26, 2026</span></p><p class="footer-note">Dosing NOT YET verified against clinical reference.</p></div>
         </div>
       </footer>
     </div>
