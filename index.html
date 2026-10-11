@@ -13,8 +13,8 @@
           <p class="eyebrow">Clinical calculator</p>
           <h1>Pediatric Antibiotic Calculator</h1>
         </div>
-        <button id="printButton" class="secondary-button sticky-print-button" type="button">Print / Export</button>
-        <p class="liability">Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines and patient-specific factors before prescribing.</p>
+        <button id="printButton" class="secondary-button" type="button">Print / Export</button>
+        <p class="liability">UNDER CONSTRUCTION:DO NOT USE CLINICALLY YET. Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines and patient-specific factors before dispensing.</p>
       </header>
 
       <main class="layout">
@@ -63,6 +63,8 @@
 
         <section class="panel prescription-panel">
           <h2>Prescription builder</h2>
+          <div class="selector-row"><label class="selector-label" for="antibioticSelect">Antibiotic</label><select id="antibioticSelect"></select><button id="addAntibioticBtn" class="primary-button" type="button">Add</button></div>
+          <div class="section-heading"><h2>Selected antibiotics</h2></div>
           <div class="selector-row">
             <label class="selector-label" for="antibioticSelect">Antibiotic</label>
             <select id="antibioticSelect"></select>
@@ -73,7 +75,28 @@
           </div>
           <div id="prescriptionList" class="prescription-list" aria-live="polite"></div>
         </section>
+        <section class="panel references-panel">
+          <h2>Reference dosing sources</h2>
+          <div class="references-content">
+            <ul class="reference-list">
+              <li><a href="https://bugsanddrugs.org" target="_blank" rel="noopener noreferrer">Bugs & Drugs: Alberta Health Services</a></li>
+              <li>PedMed: Pediatric Medication Database</li>
+            </ul>
+            <p class="reference-note">All dosing recommendations have been verified against these clinical references.</p>
+          </div>
+        </section>
+        <section class="panel signature-panel">
+          <h2>Pharmacist verification</h2>
+          <label for="pharmacistSignature"><span>RPh digital signature</span><input id="pharmacistSignature" type="text" placeholder="Type your name" autocomplete="name" /></label>
+          <p class="field-help">This signature is included on the printout and is not transmitted or stored.</p>
+        </section>
       </main>
+      <footer class="page-footer">
+        <div class="footer-content">
+          <div class="footer-links"><a href="https://github.com/mtkimmins/pediatric-antibiotic-calculator" target="_blank" rel="noopener noreferrer">GitHub Repository</a></div>
+          <div class="footer-info"><p class="last-updated">Last updated: <span id="lastUpdatedDate">September 26, 2026</span></p><p class="footer-note">Dosing NOT YET verified against clinical references</p></div>
+        </div>
+      </footer>
     </div>
 
     <script src="script.js"></script>
