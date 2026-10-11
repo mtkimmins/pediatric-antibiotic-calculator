@@ -1,5 +1,5 @@
 # Clinical Antibiotic Dosing Validator for Alberta Pharmacists
 
-Personal tool developed by Mike Kimmins intended to promote clinical assessment of pediatric antibiotic prescribing in community.
+Personal tool intended to promote clinical assessment of pediatric antibiotic prescribing in community.
 
-Under development for personal use
+Oct 10, 2026: Under development
