@@ -31,12 +31,6 @@
                 <input id="weightKg" type="number" min="0" step="0.1" value="20" />
                 <span id="weightUnit">kg</span>
                 <button id="weightToggle" class="unit-toggle" type="button" aria-label="Toggle weight unit">kg → lb</button>
-                <div>
-                  <span>Clinical Weight</span>
-                  <br>
-                  <span id="clinicalweight"></span><span> kg</span>
-                
-              </div>
             </label>
             <label>
               <span>Age</span>
@@ -46,21 +40,29 @@
               </div>
             </label>
           </div>
+          
+          <div class="kg-conversion">
+            <label>
+              <span>Clinical weight used = </span>
+              <span id="clinical-kg"></span>
+              <span> kg</span>
+              
+            </label>
+          </div>
 
           <label>
             <span>Clinical notes</span>
             <textarea id="clinicalNotes" rows="3" placeholder="Allergies, renal function, follow-up instructions..."></textarea>
           </label>
+        </section>
 
         
         <section class="panel prescription-panel">
           <h2>Prescription builder</h2>
-          <div class="selector-row"><label class="selector-label" for="antibioticSelect">Antibiotic</label><select id="antibioticSelect"></select><button id="addAntibioticBtn" class="primary-button" type="button">Add</button></div>
-          <div class="section-heading"><h2>Selected antibiotics</h2></div>
           <div class="selector-row">
             <label class="selector-label" for="antibioticSelect">Antibiotic</label>
             <select id="antibioticSelect"></select>
-            <button id="addAntibioticBtn" class="primary-button" type="button">Add antibiotic</button>
+            <button id="addAntibioticBtn" class="primary-button" type="button">Add</button>
           </div>
         </section>
           
