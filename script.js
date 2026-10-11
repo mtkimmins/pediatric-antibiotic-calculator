@@ -16,6 +16,7 @@ const indicationsData = {
 
 const antibioticCatalog = {
   amoxicillin: {
+    key: 'amoxicillin',
     name: 'Amoxicillin',
     indications: indicationsData.amoxicillin,
     dailyDoseMgPerKg: 40, frequency: 2, route: 'PO', interval: '12 hourly',
@@ -28,6 +29,7 @@ const antibioticCatalog = {
     notes: 'Adjust dosing based on indication and patient-specific factors.'
   },
   clavulanate: {
+    key: 'clavulanate',
     name: 'Amoxicillin + Clavulanic acid',
     indications: indicationsData.clavulanate,
     dailyDoseMgPerKg: 45, frequency: 2, route: 'PO', interval: '12 hourly',
@@ -40,6 +42,7 @@ const antibioticCatalog = {
     notes: 'Available in 2 strength combinations. Verify strength/dosing per indication.'
   },
   azithromycin: {
+    key: 'azithromycin',
     name: 'Azithromycin',
     indications: indicationsData.azithromycin,
     dailyDoseMgPerKg: 10, frequency: 1, route: 'PO', interval: 'daily',
@@ -52,7 +55,7 @@ const antibioticCatalog = {
   }
 };
 
-const state = { selected: [], weightUnit: 'kg' };
+const state = { selected: [], weightUnit: 'kg', antibioticCatalog: {} };
 const weightInput = document.getElementById('weightKg');
 const weightUnit = document.getElementById('weightUnit');
 const weightToggle = document.getElementById('weightToggle');

@@ -1,21 +1,5 @@
-# pediatric-antibiotic-calculator
-Pediatric antibiotic calculator based on Albertan guidelines found at bugsanddrugs.org
+# Clinical Antibiotic Dosing Validator for Alberta Pharmacists
 
-# Project Progress Map
+Personal tool intended to promote clinical assessment of pediatric antibiotic prescribing in community.
 
-```mermaid
-graph LR
-A[UI/UX]-->AA
-B[Clinical]-->BA
-C[Patient Material]-->CA
-
-%% STYLES
-classDef done fill:#00224D
-classDef prog fill:#5D0E41
-classDef lock fill:#FF204E
-
-%% CLASSES
-class AZ done;
-class A,B,C prog;
-class AA,BA,CA lock;
-```
+Oct 10, 2026: Under development
