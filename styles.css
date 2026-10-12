@@ -58,14 +58,19 @@ h1 { margin-bottom: 0; font-size: clamp(2rem, 2vw + 1rem, 2.8rem); }
   line-height: 1.5;
 }
 .print-button-wrap {
+  position: fixed;
+  top: 20px;
+  right: max(16px, calc((100vw - 1200px) / 2 + 18px));
+  z-index: 40;
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 0;
 }
 .sticky-print-button {
-  position: sticky;
-  top: 16px;
+  position: relative;
   z-index: 10;
+  align-self: flex-start;
+  box-shadow: 0 10px 24px rgba(15, 41, 68, 0.12);
 }
 .layout { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 24px; }
 .panel {
@@ -135,7 +140,92 @@ textarea {
   align-items: end;
   margin-bottom: 24px;
 }
-.selector-row select, .indication-select, .dose-panel input, .dose-panel select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fbfcff; }
+.selector-row select, .indication-select, .dose-panel input, .dose-panel select, .assessment-field input, .assessment-field select, .assessment-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fbfcff;
+}
+.assessment-fields {
+  margin-top: 18px;
+}
+.assessment-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.assessment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f1f6ff 100%);
+}
+.assessment-field .field-block {
+  display: grid;
+  gap: 8px;
+}
+.static-age-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f1f6ff 100%);
+  font-weight: 700;
+}
+.static-age-row.status-red {
+  background: var(--danger);
+  border-color: var(--danger-strong);
+  color: var(--danger-strong);
+}
+.static-age-row.status-yellow {
+  background: var(--warning);
+  border-color: var(--warning-strong);
+  color: var(--warning-strong);
+}
+.static-age-row.status-green {
+  background: var(--success);
+  border-color: var(--success-strong);
+  color: var(--success-strong);
+}
+.static-age-value {
+  font-size: 1.05rem;
+}
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  font-weight: 600;
+}
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+.input-with-unit.compact {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fbfcff;
+  overflow: hidden;
+}
+.input-with-unit.compact input {
+  border: 0;
+  min-width: 0;
+}
+.input-with-unit.compact span {
+  padding-right: 12px;
+  white-space: nowrap;
+  color: var(--muted);
+}
 .primary-button, .secondary-button, .tertiary-button, .remove-button {
   border: none;
   border-radius: 10px;
@@ -249,12 +339,16 @@ textarea {
   .field-row, .selector-row { grid-template-columns: 1fr; }
   .topbar { grid-template-columns: 1fr; }
   .secondary-button { justify-self: start; }
+  .print-button-wrap {
+    top: 12px;
+    right: 12px;
+  }
   .dose-panels { grid-template-columns: 1fr; }
   .signature-header { flex-direction: column; align-items: flex-start; }
 }
 @media print {
   body { background: white; }
-  .secondary-button, .primary-button, .tertiary-button, .remove-button, .unit-toggle { display: none !important; }
+  .secondary-button, .primary-button, .tertiary-button, .remove-button, .unit-toggle, .print-button-wrap { display: none !important; }
   .app-shell { max-width: none; padding: 0; }
   .panel, .topbar { box-shadow: none; }
 }

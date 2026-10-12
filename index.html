@@ -14,12 +14,11 @@
           <p class="eyebrow">PharmAlta Clinical Tool</p>
           <h1>Pediatric Antibiotic Calculator</h1>
         </div>
-        <p class="liability">UNDER CONSTRUCTION: DO NOT USE CLINICALLY YET. <br>Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines before prescribing.</p>
+        <div class="print-button-wrap">
+          <button id="printButton" class="secondary-button sticky-print-button" type="button">Print / Export</button>
+        </div>
+        <p class="liability">UNDER CONSTRUCTION: DO NOT USE CLINICALLY YET. <br>Calculations use weight-based dosing commonly referenced for pediatric outpatient prescribing. Always verify local guidelines before prescribing.<br>This tools is intended for first-presentation infections only.</p>
       </header>
-
-      <div class="print-button-wrap">
-        <button id="printButton" class="secondary-button sticky-print-button" type="button">Print / Export</button>
-      </div>
 
       <main class="layout">
         <section class="panel patient-panel">
@@ -48,18 +47,31 @@
             <strong id="clinicalWeightValue">20.0 kg</strong>
           </div>
 
-          <label>
+          <div>
+            <label>
             <span>Clinical notes</span>
-            <textarea id="clinicalNotes" rows="3" placeholder="Allergies, renal function, follow-up instructions..."></textarea>
-          </label>
+              <textarea id="clinicalNotes" rows="3" placeholder="Allergies, renal function, follow-up instructions..."></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel assessment-panel">
+          <h2>Assessment</h2>
+          <div class="field-block">
+            <span class="selector-label">Indication</span>
+            <select id="indicationSelect">
+              <option value="">Select indication</option>
+            </select>
+          </div>
+          <div id="assessmentFields" class="assessment-fields" aria-live="polite"></div>
         </section>
 
         <section class="panel prescription-panel">
-          <h2>Prescription builder</h2>
-          <div class="selector-row">
-            <label class="selector-label" for="antibioticSelect">Antibiotic</label>
+          <h2>Prescription Validator</h2>
+          <label class="field-block">
+            <span class="selector-label">Select Antibiotic</span>
             <select id="antibioticSelect"></select>
-          </div>
+          </label>
           <div id="prescriptionList" class="prescription-list"></div>
         </section>
 
@@ -67,8 +79,7 @@
           <div class="signature-section">
             <div class="signature-header">
               <h3>Clinician signature</h3>
-              <button id="signatureToggleBtn" class="secondary-button signature-toggle" type="button" aria-expanded="false">
-                Reveal signature box
+              <button id="signatureToggleBtn" class="secondary-button signature-toggle" type="button" aria-expanded="true">
               </button>
             </div>
 
