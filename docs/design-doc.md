@@ -1,7 +1,10 @@
 # Design Document
-As a clinician, I should be able to use this calculator for two purposes:
-1) Verifying the dosing for incoming prescriptions (hospital orders or community prescriptions)
-2) Writing my own prescriptions for antibiotics after an APA assessment
+As a clinician, I should be able to use this calculator for one purpose:
+* Convert the prescribed dose back to mg/kg/day for quicker clinical assessments
+
+# TODO
+* default strength selected as the first option, and always move "custom" as the last option
+* immediately under frequency input, have the input translated to plain english
 
 # Project Progress Map
 
@@ -24,7 +27,7 @@ class AA,BA,CA lock;
 
 # How It Should Look
 
-For purpose (1), I need input fields for the new RX (mg or ml, to accommodate however the prescriber wrote it)
+I need input fields for the new RX (mg, ml, or dose to accommodate however the prescriber wrote it)
 I would then like to see the reference dosing from bugs
 
 For reference, I have anonymized several pediatric prescriptions for antibiotics. These are how antibiotic prescriptions appear in these order samples:

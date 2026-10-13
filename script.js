@@ -3,43 +3,51 @@
 //        DATA STRUCTURES
 //
 /////////////////////////////////////////////
+//All strengths of abx listed are in (mg/5mL)
 const antibioticCatalog = {
   Amoxicillin: {
-    strengths: [125, 250, 400],
+    strengths: [125, 250],
     packSizes: {
-      125: [60, 100, 150, 200],
-      250: [60, 100, 150, 200],
-      400: [60, 100, 150, 200],
+      125: [100, 150],
+      250: [100, 150],
     },
     typicalDose: { min: 40, max: 90 },
-    defaultStrength: 250,
-    defaultDose: 5,
-    defaultFrequency: 'q12h',
+    maxDailyAmoxicillinMg: 1000,
+    clavulanateRatio: 0,
+    supportsExtraAmoxicillin: false,
+    supportsLoadingDose: false,
   },
   'Amoxicillin-Clavulanate': {
-    strengths: [125, 200, 250, 400, 600],
+    strengths: [125, 200, 250, 400],
     packSizes: {
-      125: [50, 75, 100, 150, 200],
-      200: [50, 75, 100, 150, 200],
-      250: [50, 75, 100, 150, 200],
-      400: [50, 75, 100, 150, 200],
-      600: [50, 75, 100, 150, 200],
+      125: [100],
+      200: [70],
+      250: [100],
+      400: [70],
     },
     typicalDose: { min: 45, max: 90 },
-    defaultStrength: 250,
-    defaultDose: 5,
-    defaultFrequency: 'q12h',
+    maxDailyAmoxicillinMg: 3000,
+    clavulanateRatio: 7,
+    strengthToClavRatio: {
+      125: 4,
+      200: 7,
+      250: 4,
+      400: 7,
+    },
+    supportsExtraAmoxicillin: true,
+    supportsLoadingDose: false,
   },
   Azithromycin: {
     strengths: [100, 200],
     packSizes: {
-      100: [15, 30, 60, 90],
-      200: [15, 30, 60, 90],
+      100: [15],
+      200: [15, 22.5, 37.5],
     },
-    typicalDose: { min: 5, max: 10 },
-    defaultStrength: 200,
-    defaultDose: 5,
-    defaultFrequency: 'daily',
+    typicalDose: { min: 5, max: 10, loading: 10 },
+    maxDailyAmoxicillinMg: null,
+    clavulanateRatio: 0,
+    supportsExtraAmoxicillin: false,
+    supportsLoadingDose: true,
   },
 };
 
@@ -71,6 +79,19 @@ const daysInput = document.getElementById('daysValue');
 const dosingResults = document.getElementById('dosingResults');
 const packagingDisplay = document.getElementById('packagingDisplay');
 const printButton = document.getElementById('printButton');
+const frequencyEnglish = document.getElementById('frequencyEnglish');
+const strengthPreset = document.getElementById('strengthPreset');
+const customStrengthFields = document.getElementById('customStrengthFields');
+const extraAmoxicillinBlock = document.getElementById('extraAmoxicillinBlock');
+const extraAmoxicillinToggle = document.getElementById('extraAmoxicillinToggle');
+const extraAmoxicillinFields = document.getElementById('extraAmoxicillinFields');
+const extraAmoxicillinDoseInput = document.getElementById('extraAmoxicillinDose');
+const extraAmoxicillinUnitSelect = document.getElementById('extraAmoxicillinUnit');
+const extraAmoxicillinStrengthMgInput = document.getElementById('extraAmoxicillinStrengthMg');
+const extraAmoxicillinStrengthMlSelect = document.getElementById('extraAmoxicillinStrengthMl');
+const azithromycinLoadingBlock = document.getElementById('azithromycinLoadingBlock');
+const azithromycinLoadingToggle = document.getElementById('azithromycinLoadingToggle');
+const azithromycinLoadingDoseInput = document.getElementById('azithromycinLoadingDose');
 
 function formatNumber(value, digits = 1) {
   if (!Number.isFinite(value) || value < 0) return '--';
@@ -83,11 +104,57 @@ function populateAntibiotics() {
     .join('');
 
   antibioticSelect.value = antibiotics[0];
-  strengthMlSelect.value = '1';
+  strengthMlSelect.value = '5';
   strengthMgInput.value = '';
   doseValueInput.value = '';
   frequencyInput.value = '';
   daysInput.value = '';
+  extraAmoxicillinDoseInput.value = '';
+  azithromycinLoadingDoseInput.value = '';
+  azithromycinLoadingToggle.checked = false;
+  updateStrengthPresetOptions();
+}
+
+function updateStrengthPresetOptions() {
+  const config = getSelectedAntibioticConfig();
+  const presetOptions = (config.strengths || []).map((strength) => (
+    `<option value="${strength}">${strength} mg per ${strengthMlSelect.value || 5} mL</option>`
+  ));
+
+  presetOptions.push('<option value="custom">Custom</option>');
+  strengthPreset.innerHTML = presetOptions.join('');
+
+  const preferredDefault = Number(config.strengths?.[0]) || 0;
+  if (preferredDefault > 0) {
+    strengthPreset.value = String(preferredDefault);
+    strengthMgInput.value = String(preferredDefault);
+  } else {
+    strengthPreset.value = 'custom';
+  }
+}
+
+function updateCustomFieldVisibility() {
+  const selected = antibioticSelect.value;
+  const config = antibioticCatalog[selected];
+  const showExtraAmoxicillin = Boolean(config?.supportsExtraAmoxicillin);
+  const showLoadingDose = Boolean(config?.supportsLoadingDose);
+  const isCustomStrength = String(strengthPreset.value) === 'custom';
+
+  customStrengthFields.classList.toggle('hidden', !isCustomStrength);
+  extraAmoxicillinBlock.classList.toggle('hidden', !showExtraAmoxicillin);
+  azithromycinLoadingBlock.classList.toggle('hidden', !showLoadingDose);
+
+  if (!showExtraAmoxicillin) {
+    extraAmoxicillinToggle.checked = false;
+    extraAmoxicillinFields.classList.add('hidden');
+    extraAmoxicillinDoseInput.value = '';
+    extraAmoxicillinStrengthMgInput.value = '';
+  }
+
+  if (!showLoadingDose) {
+    azithromycinLoadingToggle.checked = false;
+    azithromycinLoadingDoseInput.value = '';
+  }
 }
 
 function getActiveWeightKg() {
@@ -137,23 +204,23 @@ function parseFrequency(input) {
   const value = String(input || '').trim().toLowerCase();
 
   if (!value) {
-    return { hours: 24, label: 'daily', dosesPerDay: 1 };
+    return { hours: 24, label: 'daily', dosesPerDay: 1, english: 'Daily' };
   }
 
   if (value.includes('qid') || value.includes('q6h')) {
-    return { hours: 6, label: 'every 6 hours', dosesPerDay: 4 };
+    return { hours: 6, label: 'every 6 hours', dosesPerDay: 4, english: 'Every 6 hours' };
   }
 
   if (value.includes('tid') || value.includes('q8h')) {
-    return { hours: 8, label: 'every 8 hours', dosesPerDay: 3 };
+    return { hours: 8, label: 'every 8 hours', dosesPerDay: 3, english: 'Every 8 hours' };
   }
 
   if (value.includes('bid') || value.includes('q12h')) {
-    return { hours: 12, label: 'every 12 hours', dosesPerDay: 2 };
+    return { hours: 12, label: 'every 12 hours', dosesPerDay: 2, english: 'Every 12 hours' };
   }
 
   if (value.includes('daily') || value.includes('qd') || value.includes('q24h')) {
-    return { hours: 24, label: 'daily', dosesPerDay: 1 };
+    return { hours: 24, label: 'daily', dosesPerDay: 1, english: 'Daily' };
   }
 
   const qMatch = value.match(/q(\d+)h/);
@@ -164,6 +231,7 @@ function parseFrequency(input) {
         hours,
         label: `every ${hours} hours`,
         dosesPerDay: Math.round(24 / hours),
+        english: `Every ${hours} hours`,
       };
     }
   }
@@ -172,16 +240,89 @@ function parseFrequency(input) {
   if (numericMatch) {
     const candidate = Number(numericMatch[1]);
     if (candidate > 0) {
-      return { hours: candidate, label: `every ${candidate} hours`, dosesPerDay: Math.round(24 / candidate) };
+      return { hours: candidate, label: `every ${candidate} hours`, dosesPerDay: Math.round(24 / candidate), english: `Every ${candidate} hours` };
     }
   }
 
-  return { hours: 24, label: 'daily', dosesPerDay: 1 };
+  return { hours: 24, label: 'daily', dosesPerDay: 1, english: 'Daily' };
+}
+
+function updateFrequencyEnglish() {
+  const frequency = parseFrequency(frequencyInput.value);
+  const englishText = frequency.english || 'Daily';
+  if (frequencyEnglish) {
+    frequencyEnglish.querySelector('div').textContent = englishText;
+  }
 }
 
 function getSelectedAntibioticConfig() {
   const name = antibioticSelect.value || antibiotics[0];
   return antibioticCatalog[name];
+}
+
+function getStrengthSelectionValue() {
+  const value = Number(strengthMgInput.value);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function getDoseMgFromInputs(doseValue, unit, strengthMg, volumeMl) {
+  const rawDose = Number(doseValue);
+  const strength = Number(strengthMg) / (Number(volumeMl) || 1);
+
+  if (!Number.isFinite(rawDose) || rawDose < 0) {
+    return 0;
+  }
+
+  if (unit === 'mg') {
+    return rawDose;
+  }
+
+  if (unit === 'ml') {
+    return rawDose * strength;
+  }
+
+  if (unit === 'doses') {
+    return rawDose * strength * 5;
+  }
+
+  return rawDose * strength;
+}
+
+function getExtraPlainAmoxicillinMgPerDose() {
+  if (antibioticSelect.value !== 'Amoxicillin-Clavulanate' || !extraAmoxicillinToggle.checked) {
+    return 0;
+  }
+
+  return getDoseMgFromInputs(
+    extraAmoxicillinDoseInput.value,
+    extraAmoxicillinUnitSelect.value,
+    extraAmoxicillinStrengthMgInput.value,
+    extraAmoxicillinStrengthMlSelect.value,
+  );
+}
+
+function getAzithromycinLoadingDoseMg() {
+  if (antibioticSelect.value !== 'Azithromycin' || !azithromycinLoadingToggle.checked) {
+    return 0;
+  }
+
+  const value = Number(azithromycinLoadingDoseInput.value);
+  return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+function getClavulanateRatio() {
+  const config = getSelectedAntibioticConfig();
+  const strengthValue = getStrengthSelectionValue();
+
+  if (!config || config.clavulanateRatio === 0) {
+    return 0;
+  }
+
+  if (config.strengthToClavRatio && config.strengthToClavRatio[strengthValue]) {
+    return config.strengthToClavRatio[strengthValue];
+  }
+
+  return config.clavulanateRatio;
 }
 
 function getStrengthMgPerMl() {
@@ -226,12 +367,37 @@ function calculateRegimen() {
   const strength = getStrengthMgPerMl() || config.defaultStrength;
   const days = Number(daysInput.value) || 1;
   const doseMgPerDose = getDoseMgPerDose();
-  const totalDailyMg = doseMgPerDose * frequency.dosesPerDay;
-  const totalRegimenMg = totalDailyMg * days;
+  const extraAmoxicillinMgPerDose = getExtraPlainAmoxicillinMgPerDose();
+  const azithromycinLoadingDoseMg = getAzithromycinLoadingDoseMg();
+  const clavulanateRatio = getClavulanateRatio();
+
+  const amoxicillinMgPerDose = antibioticSelect.value === 'Amoxicillin-Clavulanate'
+    ? doseMgPerDose + extraAmoxicillinMgPerDose
+    : doseMgPerDose;
+
+  const totalDailyAmoxicillinMg = amoxicillinMgPerDose * frequency.dosesPerDay;
+  const totalDailyClavulanateMg = antibioticSelect.value === 'Amoxicillin-Clavulanate'
+    ? doseMgPerDose * clavulanateRatio * frequency.dosesPerDay
+    : 0;
+
+  const baseDailyMg = antibioticSelect.value === 'Azithromycin'
+    ? doseMgPerDose * frequency.dosesPerDay
+    : totalDailyAmoxicillinMg;
+
+  const loadingDoseAdjustment = azithromycinLoadingDoseMg > 0 ? azithromycinLoadingDoseMg : 0;
+  const totalDailyMg = antibioticSelect.value === 'Azithromycin'
+    ? baseDailyMg
+    : totalDailyAmoxicillinMg;
+  const totalRegimenMg = (totalDailyMg * days) + loadingDoseAdjustment;
   const mgPerKgPerDay = weightKg > 0 ? totalDailyMg / weightKg : 0;
   const minDose = config.typicalDose.min;
   const maxDose = config.typicalDose.max;
   const withinRange = mgPerKgPerDay >= minDose && mgPerKgPerDay <= maxDose;
+
+  const amoxicillinLimitMg = config.maxDailyAmoxicillinMg || null;
+  const clavulanateLimitMgPerKg = antibioticSelect.value === 'Amoxicillin-Clavulanate' ? 10 : 0;
+  const amoxicillinLimitExceeded = amoxicillinLimitMg !== null && totalDailyAmoxicillinMg > amoxicillinLimitMg;
+  const clavulanateLimitExceeded = clavulanateLimitMgPerKg > 0 && weightKg > 0 && totalDailyClavulanateMg > (clavulanateLimitMgPerKg * weightKg);
 
   return {
     weightKg,
@@ -241,10 +407,17 @@ function calculateRegimen() {
     strength,
     days,
     doseMgPerDose,
+    extraAmoxicillinMgPerDose,
+    azithromycinLoadingDoseMg,
+    totalDailyAmoxicillinMg,
+    totalDailyClavulanateMg,
+    loadingDoseAdjustment,
     totalDailyMg,
     totalRegimenMg,
     mgPerKgPerDay,
     withinRange,
+    amoxicillinLimitExceeded,
+    clavulanateLimitExceeded,
     reference: `${formatNumber(minDose, 0)}-${formatNumber(maxDose, 0)} mg/kg/day`,
   };
 }
@@ -252,10 +425,41 @@ function calculateRegimen() {
 function renderDosingResults() {
   const result = calculateRegimen();
 
-  const statusClass = result.withinRange ? 'status-success' : 'status-warning';
-  const statusText = result.withinRange
-    ? 'Within the typical pediatric outpatient reference range.'
-    : 'Outside the usual pediatric reference range; confirm with local guidelines.';
+  const warnings = [];
+  if (result.amoxicillinLimitExceeded) {
+    warnings.push(`Total amoxicillin exceeds the 1000 mg/day maximum.`);
+  }
+  if (result.clavulanateLimitExceeded) {
+    warnings.push(`Clavulanate exceeds 10 mg/kg/day for the current weight.`);
+  }
+  if (result.azithromycinLoadingDoseMg > 0) {
+    warnings.push(`Initial loading dose included for azithromycin.`);
+  }
+  if (!result.withinRange && warnings.length === 0) {
+    warnings.push('Outside the usual pediatric reference range; confirm with local guidelines.');
+  }
+
+  const statusClass = warnings.length > 0 ? 'status-warning' : result.withinRange ? 'status-success' : 'status-warning';
+  const statusText = warnings.length > 0
+    ? warnings.join(' ')
+    : 'Within the typical pediatric outpatient reference range.';
+
+  let supplementMarkup = '';
+  if (antibioticSelect.value === 'Amoxicillin-Clavulanate') {
+    supplementMarkup = `
+      <p><strong>Amoxicillin total:</strong> ${formatNumber(result.totalDailyAmoxicillinMg, 1)} mg/day (${formatNumber(result.totalDailyAmoxicillinMg / Math.max(result.weightKg, 1), 1)} mg/kg/day)</p>
+      <p><strong>Clavulanate total:</strong> ${formatNumber(result.totalDailyClavulanateMg, 1)} mg/day (${formatNumber(result.totalDailyClavulanateMg / Math.max(result.weightKg, 1), 1)} mg/kg/day)</p>
+      <p><strong>Amoxicillin limit:</strong> 1000 mg/day max</p>
+      <p><strong>Clavulanate limit:</strong> 10 mg/kg/day max</p>
+    `;
+  }
+
+  if (antibioticSelect.value === 'Azithromycin') {
+    supplementMarkup = `
+      <p><strong>Loading dose:</strong> ${formatNumber(result.azithromycinLoadingDoseMg, 1)} mg</p>
+      <p><strong>Daily equivalent:</strong> ${formatNumber(result.mgPerKgPerDay, 1)} mg/kg/day</p>
+    `;
+  }
 
   dosingResults.className = `results-panel ${statusClass}`;
   dosingResults.innerHTML = `
@@ -264,6 +468,7 @@ function renderDosingResults() {
     <p><strong>Total course dose:</strong> ${formatNumber(result.totalRegimenMg, 1)} mg</p>
     <p><strong>Per dose:</strong> ${formatNumber(result.doseMgPerDose, 1)} mg</p>
     <p><strong>Reference range:</strong> ${result.reference}</p>
+    ${supplementMarkup}
     <p class="summary-text">${statusText}</p>
   `;
 
@@ -498,14 +703,58 @@ function attachEvents() {
   weightInput.addEventListener('input', handleWeightInput);
   weightInput.addEventListener('focus', selectAllOnFocus);
   weightToggle.addEventListener('click', toggleWeightUnit);
-  antibioticSelect.addEventListener('change', renderDosingResults);
+  antibioticSelect.addEventListener('change', () => {
+    updateStrengthPresetOptions();
+    updateCustomFieldVisibility();
+    updateFrequencyEnglish();
+    renderDosingResults();
+  });
   doseValueInput.addEventListener('input', renderDosingResults);
   doseValueInput.addEventListener('focus', selectAllOnFocus);
   doseUnitSelect.addEventListener('change', renderDosingResults);
-  strengthMgInput.addEventListener('input', renderDosingResults);
+  strengthPreset.addEventListener('change', () => {
+    const selected = Number(strengthPreset.value);
+    const isCustom = String(strengthPreset.value) === 'custom';
+    updateCustomFieldVisibility();
+
+    if (!isCustom && Number.isFinite(selected) && selected > 0) {
+      strengthMgInput.value = String(selected);
+      strengthMlSelect.value = '5';
+    } else if (isCustom) {
+      strengthMgInput.value = strengthMgInput.value || '';
+    }
+
+    renderDosingResults();
+  });
+  strengthMgInput.addEventListener('input', () => {
+    if (strengthPreset.value !== 'custom') {
+      strengthPreset.value = 'custom';
+      updateCustomFieldVisibility();
+    }
+    renderDosingResults();
+  });
   strengthMgInput.addEventListener('focus', selectAllOnFocus);
-  strengthMlSelect.addEventListener('change', renderDosingResults);
-  frequencyInput.addEventListener('input', renderDosingResults);
+  strengthMlSelect.addEventListener('change', () => {
+    if (strengthPreset.value !== 'custom') {
+      strengthPreset.value = 'custom';
+      updateCustomFieldVisibility();
+    }
+    renderDosingResults();
+  });
+  extraAmoxicillinToggle.addEventListener('change', () => {
+    extraAmoxicillinFields.classList.toggle('hidden', !extraAmoxicillinToggle.checked);
+    renderDosingResults();
+  });
+  extraAmoxicillinDoseInput.addEventListener('input', renderDosingResults);
+  extraAmoxicillinUnitSelect.addEventListener('change', renderDosingResults);
+  extraAmoxicillinStrengthMgInput.addEventListener('input', renderDosingResults);
+  extraAmoxicillinStrengthMlSelect.addEventListener('change', renderDosingResults);
+  azithromycinLoadingToggle.addEventListener('change', renderDosingResults);
+  azithromycinLoadingDoseInput.addEventListener('input', renderDosingResults);
+  frequencyInput.addEventListener('input', () => {
+    updateFrequencyEnglish();
+    renderDosingResults();
+  });
   frequencyInput.addEventListener('focus', selectAllOnFocus);
   daysInput.addEventListener('input', renderDosingResults);
   daysInput.addEventListener('focus', selectAllOnFocus);
@@ -515,6 +764,8 @@ function attachEvents() {
 function init() {
   populateAntibiotics();
   attachEvents();
+  updateCustomFieldVisibility();
+  updateFrequencyEnglish();
   weightInput.value = '';
   state.weightKg = 0;
   state.weightUnit = 'kg';
