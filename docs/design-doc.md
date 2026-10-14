@@ -3,8 +3,17 @@ As a clinician, I should be able to use this calculator for one purpose:
 * Convert the prescribed dose back to mg/kg/day for quicker clinical assessments
 
 # TODO
-* default strength selected as the first option, and always move "custom" as the last option
-* immediately under frequency input, have the input translated to plain english
+* default strength selected is the highest strength
+* have the frequency input and plain text translation be a part of a single subpanel
+* Reference dose next to daily dose
+* represent loading doses in daily dose and reference dose as "xmg/kg stat + ymg/kg/day"
+* remove daily equivalent from azithromycin
+* make adding plain amoxicillin on top of amoxiclav a distinct subpanel to separate where the additional amoxicillin ends and where the frequency begins
+* remove "per dose" under regimen review
+* fix amoxicillin per/dose limit as 1000mg as opposed to daily dose
+* add mg/dose text translation underneath the dose units in the dosing validator panel
+* Add an explicit text warning in regimen review if clavulanate is over threshold, "higher risk for diarrhea"
+* if amoxicillin is higher than 1000mg/dose, have a separate recalculation shown for what the maximum dose should be with a warning that original rx is too high
 
 # Project Progress Map
 
