@@ -114,7 +114,9 @@
               </label>
             </div>
 
-            <div id="extraAmoxicillinBlock" class="field-block hidden">
+            <div id="mgDoseTranslation" class="dose-translation" aria-live="polite">0 mg/dose</div>
+
+            <div id="extraAmoxicillinBlock" class="field-block extra-amoxicillin-subpanel hidden">
               <label class="checkbox-row" for="extraAmoxicillinToggle">
                 <input id="extraAmoxicillinToggle" type="checkbox" />
                 <span>Add extra plain amoxicillin</span>
@@ -154,14 +156,16 @@
               </div>
             </div>
 
-            <label class="field-block">
-              <span>Frequency</span>
-              <input id="frequencyInput" type="text" placeholder="q6h, q8h, BID, TID" />
-            </label>
+            <div class="frequency-subpanel field-block">
+              <label class="field-block">
+                <span>Frequency</span>
+                <input id="frequencyInput" type="text" placeholder="q6h, q8h, BID, TID" />
+              </label>
 
-            <div id="frequencyEnglish" class="field-block frequency-english" aria-live="polite">
-              <span>Frequency</span>
-              <div>Daily</div>
+              <div id="frequencyEnglish" class="frequency-english" aria-live="polite">
+                <span>Frequency</span>
+                <div>Daily</div>
+              </div>
             </div>
 
             <label class="field-block">
