@@ -2,18 +2,42 @@
 As a clinician, I should be able to use this calculator for one purpose:
 * Convert the prescribed dose back to mg/kg/day for quicker clinical assessments
 
-# TODO
-* default strength selected is the highest strength
-* have the frequency input and plain text translation be a part of a single subpanel
-* Reference dose next to daily dose
-* represent loading doses in daily dose and reference dose as "xmg/kg stat + ymg/kg/day"
-* remove daily equivalent from azithromycin
-* make adding plain amoxicillin on top of amoxiclav a distinct subpanel to separate where the additional amoxicillin ends and where the frequency begins
-* remove "per dose" under regimen review
-* fix amoxicillin per/dose limit as 1000mg as opposed to daily dose
-* add mg/dose text translation underneath the dose units in the dosing validator panel
-* Add an explicit text warning in regimen review if clavulanate is over threshold, "higher risk for diarrhea"
-* if amoxicillin is higher than 1000mg/dose, have a separate recalculation shown for what the maximum dose should be with a warning that original rx is too high
+# TODO (implemented)
+
+The items below from the original TODO list have been implemented and are described with where the changes were made.
+
+- default strength selected is the highest strength
+  - Implemented in script.js (updateStrengthPresetOptions): the preset now chooses the maximum available strength for the selected antibiotic rather than the first array element.
+
+- group frequency input and plain-text translation in a single subpanel
+  - Implemented in index.html by wrapping the frequency input and the human-readable translation in a single frequency subpanel. The stylesheet and layout continue to use existing classes.
+
+- show reference dose next to the daily dose
+  - Implemented in script.js (renderDosingResults): the reference dosing (e.g. "40-90 mg/kg/day") is now shown inline with the daily dose display.
+
+- represent loading doses using the form "x mg/kg stat + y mg/kg/day"
+  - Implemented in script.js (renderDosingResults): when a loading dose is present (Azithromycin), the daily dose line shows loading and maintenance as e.g. "5 mg/kg stat + 10 mg/kg/day".
+
+- remove the redundant daily equivalent from azithromycin output
+  - Removed the separate "daily equivalent" line from the Azithromycin supplement markup and integrated the loading/maintenance display as above.
+
+- make adding plain amoxicillin on top of amoxiclav a distinct subpanel
+  - The extra-amoxicillin fields are preserved and visually separated in index.html (minor structural grouping added). Behavior remains the same but the UI groups the extra amoxicillin inputs distinctly from frequency inputs.
+
+- remove the separate "Per dose:" label under regimen review (move translation near units)
+  - The regimen review no longer contains a "Per dose:" line. Instead a live "mg per dose" translation is shown beneath the dose unit controls in the Dosing Validator panel. Implemented in index.html and script.js (updateMgDoseTranslation).
+
+- fix amoxicillin per-dose limit as 1000 mg (not daily)
+  - Implemented in script.js: a per-dose check is performed for the amoxicillin component (including when amoxicillin is added on top of amoxiclav). If the amoxicillin component per dose exceeds 1000 mg, a warning is shown and an alternate recalculation is presented showing what the regimen would look like if the per-dose component were capped at 1000 mg.
+
+- add mg/dose text translation underneath the dose units in the dosing validator panel
+  - Implemented in index.html (an element with id "mgDoseTranslation") and script.js (updateMgDoseTranslation). This shows the calculated mg per dose based on current inputs and updates live.
+
+- explicit text warning in regimen review if clavulanate is over threshold: "higher risk for diarrhea"
+  - Implemented in script.js (renderDosingResults): when clavulanate exceeds 10 mg/kg/day a warning is added that includes the text "higher risk for diarrhea".
+
+- if amoxicillin is higher than 1000 mg/dose, show a separate recalculation for the capped dose with a warning
+  - Implemented in script.js (renderDosingResults): a capped calculation is displayed showing the mg/kg/day that would result if the amoxicillin component were limited to 1000 mg per dose, with an explicit warning that the original prescription exceeds the commonly used per-dose cap.
 
 # Project Progress Map
 
