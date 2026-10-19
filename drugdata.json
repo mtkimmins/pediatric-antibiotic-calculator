@@ -1,0 +1,10 @@
+{
+    "Amoxicillin": {
+        "agents":["amoxicillin"],
+        "strengths":[250,125]
+    },
+    "Amoxicillin/Clavulanic Acid": {
+        "agents": ["amoxicillin", "clavulanic acid"],
+        "strengths": [125,200,250,400]
+    }
+}
