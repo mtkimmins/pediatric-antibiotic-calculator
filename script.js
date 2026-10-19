@@ -1,3 +1,9 @@
+/*
+IMPROVEMENTS:
+[] put margins in to make the bubbles fit
+[] separate drugs into their own subpanels, or divide between them
+[] add deletion button to all added prescriptions; hide it once 1 med is left;
+*/
 /////////////////////////////////////////
 //    CONSTANTS
 /////////////////////////////////////////
@@ -37,7 +43,10 @@ function toggleWeight() {//good
   weightUnitToggle.textContent = unit;
 };
 
-function toggleQuantity() {//good
+function toggleQuantity() {//good*
+  /*IMPROVEMENTS
+[] reveal strengthField on mL; have it prepopulated
+  */
   let unit = quantityUnitToggle.dataset.unit;
 
   if (unit === "mg") {
@@ -59,24 +68,12 @@ function addRx(){//good
 };
 
 /////////////////////////////////////////
-//    HELPERS
-/////////////////////////////////////////
-function getWeightInKg() {//good
-  const weight = Number(weightInput.value) || 0;
-  const unit = weightUnitToggle.dataset.unit;
-
-  if (unit === "lb") {
-    return weight / 2.20462;
-  }
-
-  return weight;
-}
-
-
-/////////////////////////////////////////
 //    POULATION/GENERATION SCRIPTS
 /////////////////////////////////////////
-async function populateDrugOptions(prescriptionContainer) {//good
+async function populateDrugOptions(prescriptionContainer) {//good*
+  /*IMPROVEMENTS:
+[] consolidate both populate functions
+  */
   //load options from json
   const response = await fetch(drugData);
   const drugs = await response.json();
@@ -87,6 +84,7 @@ async function populateDrugOptions(prescriptionContainer) {//good
     option.textContent = drug_name;
     prescriptionContainer.appendChild(option);
   });
+  //++populate strengths here (merge)
 };
 
 async function populateDrugStrengths(rxContainer){
@@ -105,7 +103,10 @@ async function populateDrugStrengths(rxContainer){
   });
 };
 
-function generateNewRx(){//good
+function generateNewRx(){//good*
+  /*IMPROVEMENTS: 
+[] reset all input fields, maybe by making a copy at the start instead of here;
+  */
   //clone the div (deep copy)
   const newRx = rxContainer.cloneNode(true);
   //change id to # children in `prescription-box`
@@ -147,8 +148,10 @@ function getMgKgDay(rxContainer){
   //get duration
   const durElement = rxContainer.getElementById("duration");
   const dur = durElement.value;
+  //get wt
+  const wt = getWeightInKg();
   //calculate
-  const mkd = (qty*(24/freq)/weightInput.value/dur);
+  const mkd = (qty*(24/freq)/wt/dur);
   return mkd;
 
 };
@@ -170,6 +173,16 @@ function getMg(rxContainer){
   return total;
 };
 
+function getWeightInKg() {//good
+  const weight = Number(weightInput.value) || 0;
+  const unit = weightUnitToggle.dataset.unit;
+
+  if (unit === "lb") {
+    return weight / 2.20462;
+  }
+
+  return weight;
+}
 
 
 
